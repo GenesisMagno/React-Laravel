@@ -1,0 +1,69 @@
+
+@import "tailwindcss";
+
+
+@media (min-width: 320px) {
+  .mobile\:block { display: block; }
+  .mobile\:hidden { display: none; }
+  .mobile\:flex { display: flex; }
+  .mobile\:grid { display: grid; }
+  .mobile\:text-sm { font-size: 0.875rem; }
+  .mobile\:text-base { font-size: 1rem; }
+  .mobile\:p-2 { padding: 0.5rem; }
+  .mobile\:p-4 { padding: 1rem; }
+  .mobile\:bg-red-500 { background-color: #ef4444; }
+  .mobile\:bg-blue-500 { background-color: #3b82f6; }
+}
+
+
+@media (min-width: 768px) {
+  .tablet\:block { display: block; }
+  .tablet\:hidden { display: none; }
+  .tablet\:flex { display: flex; }
+  .tablet\:grid { display: grid; }
+  .tablet\:text-base { font-size: 1rem; }
+  .tablet\:text-lg { font-size: 1.125rem; }
+  .tablet\:p-4 { padding: 1rem; }
+  .tablet\:p-8 { padding: 2rem; }
+  .tablet\:bg-green-500 { background-color: #22c55e; }
+  .tablet\:bg-yellow-500 { background-color: #eab308; }
+}
+
+@media (min-width: 1024px) {
+  .laptop\:block { display: block; }
+  .laptop\:hidden { display: none; }
+  .laptop\:flex { display: flex; }
+  .laptop\:grid { display: grid; }
+  .laptop\:text-lg { font-size: 1.125rem; }
+  .laptop\:text-xl { font-size: 1.25rem; }
+  .laptop\:p-6 { padding: 1.5rem; }
+  .laptop\:p-12 { padding: 3rem; }
+  .laptop\:bg-purple-500 { background-color: #a855f7; }
+  .laptop\:bg-indigo-500 { background-color: #6366f1; }
+}
+
+@media (min-width: 1280px) {
+  .desktop\:block { display: block; }
+  .desktop\:hidden { display: none; }
+  .desktop\:flex { display: flex; }
+  .desktop\:grid { display: grid; }
+  .desktop\:text-xl { font-size: 1.25rem; }
+  .desktop\:text-2xl { font-size: 1.5rem; }
+  .desktop\:p-8 { padding: 2rem; }
+  .desktop\:p-16 { padding: 4rem; }
+  .desktop\:bg-pink-500 { background-color: #ec4899; }
+  .desktop\:bg-cyan-500 { background-color: #06b6d4; }
+}
+
+@media (min-width: 2560px) {
+  .ultrawide\:block { display: block; }
+  .ultrawide\:hidden { display: none; }
+  .ultrawide\:flex { display: flex; }
+  .ultrawide\:grid { display: grid; }
+  .ultrawide\:text-2xl { font-size: 1.5rem; }
+  .ultrawide\:text-3xl { font-size: 1.875rem; }
+  .ultrawide\:p-12 { padding: 3rem; }
+  .ultrawide\:p-24 { padding: 6rem; }
+  .ultrawide\:bg-orange-500 { background-color: #f97316; }
+  .ultrawide\:bg-teal-500 { background-color: #14b8a6; }
+}

@@ -1,0 +1,148 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useLogin } from '../../hooks/useAuth';
+
+export default function Login() {
+
+  const navigate = useNavigate();
+  const login = useLogin();
+  const [data, setData] = useState({
+    email: '',
+    password: '',
+    remember: false,
+  });
+  const [errors, setErrors] = useState({});
+  const [processing, setProcessing] = useState(false);
+
+
+  const handleChange = (e) => {
+    const { name, type, value, checked } = e.target;
+    setData((prevData) => ({
+      ...prevData,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  setProcessing(true);
+  setErrors({});
+
+  try {
+    const user= await login.mutateAsync(data);
+
+    // user is the returned data from authService.login
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/home');
+      }
+
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.errors) {
+      // Laravel-style validation error
+      setErrors(err.response.data.errors);
+    } else if (err.response && err.response.data && err.response.data.message) {
+      // Laravel authentication failure or other messages
+      setErrors({ general: err.response.data.message });
+    } else {
+      setErrors({ general: 'Something went wrong. Please try again.' });
+    }
+  } finally {
+    setProcessing(false);
+  }
+};
+
+
+  return (
+    <div className="bg-gray-100 flex justify-center items-center h-screen w-screen">
+      <div className="w-1/2 h-screen hidden lg:block">
+        <img
+          src="/images/gengen.png"
+          alt="Login Illustration"
+          className="object-cover w-full h-full"
+        />
+      </div>
+
+      <div className="lg:p-36 md:p-52 sm:p-20 p-8 w-full sm:w-1/2">
+        <h1 className="text-2xl font-semibold mb-4">Login</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-gray-600">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={data.email}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
+              autoComplete="off"
+            />
+            {errors.email && <span className="text-red-700">{errors.email}</span>}
+          </div>
+
+          <div className="mb-4">
+            <label htmlFor="password" className="block text-gray-600">Password</label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={data.password}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
+              autoComplete="off"
+            />
+            {errors.password && <span className="text-red-700">{errors.password}</span>}
+          </div>
+
+          <div className="mb-4 flex items-center">
+            <input
+              type="checkbox"
+              id="remember"
+              name="remember"
+              checked={data.remember}
+              onChange={handleChange}
+              className="text-blue-500"
+            />
+            <label htmlFor="remember" className="text-gray-600 ml-2">Remember Me</label>
+          </div>
+
+          {errors.general && <div className="mb-4 text-red-700">{errors.general}</div>}
+
+          <div className="mb-6 text-blue-500">
+            <a href="/forgot-password" className="hover:underline">Forgot Password?</a>
+          </div>
+
+          <button
+            type="submit"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-md py-2 px-4 w-full mb-4"
+            disabled={processing}
+          >
+            {processing ? "Logging in..." : "Login"}
+          </button>
+
+          <hr className="border-none bg-gray-300 h-[1px]" />
+        </form>
+
+        <a
+          href="/auth/google"
+          className="w-full block bg-white hover:bg-gray-100 focus:bg-gray-100 text-gray-900 font-semibold rounded-lg px-4 py-2 border border-gray-300 mt-4"
+        >
+          <div className="flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 48 48">
+              <path fill="#FBBC05" d="M0 37V11l17 13z" />
+              <path fill="#EA4335" d="M0 11l17 13 7-6.1L48 14V0H0z" />
+              <path fill="#34A853" d="M0 37l30-23 7.9 1L48 0v48H0z" />
+              <path fill="#4285F4" d="M48 48L17 24l-4-3 35-10z" />
+            </svg>
+            <span className="ml-4">Log in with Google</span>
+          </div>
+        </a>
+
+        <div className="mt-6 text-blue-500 text-center">
+          <a href="/register" className="hover:underline">Sign up Here</a>
+        </div>
+      </div>
+    </div>
+  );
+}
