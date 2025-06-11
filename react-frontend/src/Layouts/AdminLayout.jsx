@@ -15,11 +15,11 @@ export default function AdminLayout() {
     const [selectedIndex, setSelectedIndex] = useState(0);
 
     const DashboardItems = [
-        { label: "Dashboard", icon: "fa-chart-line", href: "/admin/dashboard" },
-        { label: "Manage Products", icon: "fa-list-check", href: "/products" },
-        { label: "Orders", icon: "fa-list-check", href: "/orders" },
-        { label: "Users", icon: "fa-list-check", href: "/users" },
-        { label: "Payments", icon: "fa-list-check", href: "/payments" },
+        { label: "Dashboard", icon: "fa-chart-line", href: "/admin" },
+        { label: "Manage Products", icon: "fa-list-check", href: "/admin/manageproducts" },
+        { label: "Orders", icon: "fa-list-check", href: "/admin/manageorders" },
+        { label: "Users", icon: "fa-list-check", href: "/admin/manageusers" },
+        { label: "Payments", icon: "fa-list-check", href: "/admin/managepayments" },
         { label: "System Setting", icon: "fa-list-check", href: "/settings" },
     ];
 

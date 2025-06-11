@@ -1,41 +1,66 @@
-import React from "react";
-import { Inertia } from '@inertiajs/inertia';
-import AdminLayout from "../../Layouts/AdminLayout";
-import { useForm } from '@inertiajs/react';
 import { useState } from 'react';
+import { useCreateProduct } from '../../../hooks/useProducts'; // your react-query mutation
+import {  useNavigate } from 'react-router-dom';
 
-export default function Createproduct({children, auth}){
-    const { data, setData, post, processing, errors } = useForm({
-    name: "",
-    big: "",
-    medium: "",
-    platter: "",
-    tub: "",
-    image: "",
+export default function Createproduct() {
+  const [formData, setFormData] = useState({
+    name: '',
+    big: '',
+    medium: '',
+    platter: '',
+    tub: '',
+    image: null,
+  });
+
+  const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const createProduct = useCreateProduct();
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setFormData(prev => ({ ...prev, image: file }));
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+
+    const payload = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (value) payload.append(key, value);
     });
 
-    const [imagePreview, setImagePreview] = useState(null);
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        setData('image', file);
-
-        if (file) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImagePreview(reader.result);
-        };
-        reader.readAsDataURL(file);
+    createProduct.mutate(payload, {
+      onSuccess: () => {
+        alert('Product created!');
+        navigate('/admin/manageproducts');
+        // reset form or redirect as needed
+      },
+      onError: (error) => {
+        if (error.response?.data?.errors) {
+          setErrors(error.response.data.errors);
         }
-    };
+      },
+    });
+  };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        post('/products' ); // Adjust the route to match your Laravel route
-    };
-
-    return(
-         <div className="h-full w-full overflow-hidden ">
+  return (
+    <div className="h-full w-full overflow-hidden ">
       <div className=" w-full h-full m-auto rounded-md overflow-hidden flex flex-col">
         <div className="ml-8 h-10 text-4xl font-sans font-[500] antialiased">Create Product</div>
 
@@ -64,7 +89,7 @@ export default function Createproduct({children, auth}){
               className="mt-3 text-sm text-gray-900 border rounded-lg cursor-pointer dark:bg-gray-100 dark:placeholder-gray-400"
               onChange={handleFileChange}
             />
-            {errors.image && <span className="text-red-500">{errors.image}</span>}
+            {errors.image && <span className="text-red-500">{errors.image[0]}</span>}
           </div>
 
           {/* Text Inputs */}
@@ -81,28 +106,27 @@ export default function Createproduct({children, auth}){
                 <input
                   type="text"
                   name={field.name}
-                  value={data[field.name]}
-                  onChange={(e) => setData(field.name, e.target.value)}
+                  value={formData[field.name]}
+                  onChange={handleInputChange}
                   className="rounded-md h-10 w-4/5 text-xl border border-black mt-2 px-6 m-auto"
                 />
-                {errors[field.name] && <span className="text-red-500">{errors[field.name]}</span>}
+                {errors[field.name] && <span className="text-red-500">{errors[field.name][0]}</span>}
               </div>
             ))}
 
             <div className="m-auto text-center">
               <button
                 type="submit"
-                disabled={processing}
+                disabled={createProduct.isLoading}
                 className="border rounded-sm bg-green-700 w-32 h-10 text-white"
               >
-                {processing ? 'Saving...' : 'Add Product'}
+                {createProduct.isLoading ? 'Saving...' : 'Add Product'}
               </button>
             </div>
           </div>
         </form>
       </div>
     </div>
-    )
+  );
 }
-Createproduct.layout = (page) => <AdminLayout auth={page.props.auth} children={page}/>;
-    
+
