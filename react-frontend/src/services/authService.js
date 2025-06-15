@@ -7,6 +7,11 @@ export const login = async (credentials) => {
   return data;
 };
 
+
+export const register = async (formData) => {
+  await api.post('/register', formData); // no return
+};
+
 export const logout = async () => {
   await api.post('/logout');
 };

@@ -13,73 +13,89 @@ use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
     public function register(Request $request){
-        $validated= Validator::make($request->all(),[
-            'email'=>'required|email|unique:users',
-            'password'=>'required|min:6|confirmed',
-        ]);
+        try {
+            // Option 1: Using Validator facade (recommended for consistency with your login method)
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:6|confirmed',
+            ]);
 
-        if($validated->fails()){
-            return response()->json(['error'=>$validated->errors()],422);
-        };
-        
-        User::create([
-            'email' => $request->input('email'),
-            'password' => bcrypt($request->input('password')),
-        ]);
-        
-        return response()->json($validated->validate());
+            if($validator->fails()){
+                return response()->json([
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            
+            $user = User::create([
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+                'password' => bcrypt($request->input('password')),
+            ]);
+            
+            return response()->json([
+                'message' => 'Registered successfully',
+                'user' => $user
+            ]);
+            
+        } catch (\Exception $e) {
+            // Log the actual error for debugging
+            \Log::error('Registration error: ' . $e->getMessage());
+            
+            return response()->json([
+                'message' => 'Registration failed',
+                'error' => $e->getMessage() // Remove this in production
+            ], 500);
+        }
     }
 
     public function login(Request $request)
-{
-    $credentials = $request->only('email', 'password');
+    {
+        $credentials = $request->only('email', 'password');
 
-    // Validate credentials first
-    $validator = Validator::make($credentials, [
-        'email' => 'required|email',
-        'password' => 'required'
-    ]);
+        // Validate credentials first
+        $validator = Validator::make($credentials, [
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'errors' => $validator->errors()
-        ], 422);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $user = User::where('email', $credentials['email'])->first();
+
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
+            return response()->json([
+                'message' => 'Invalid credentials'
+            ], 401);
+        }
+
+        try {
+            $token = JWTAuth::fromUser($user);
+            return response()->json([
+                'message' => 'Logged in successfully',
+                'user' => $user
+            ])->cookie(
+                'jwt_token',
+                $token,
+                1440,
+                '/',
+                null,
+                true,
+                true,
+                false,
+                'Strict'
+            );
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Could not create token'
+            ], 500);
+        }
     }
-
-    $user = User::where('email', $credentials['email'])->first();
-
-    if (!$user || !Hash::check($credentials['password'], $user->password)) {
-        return response()->json([
-            'message' => 'Invalid credentials'
-        ], 401);
-    }
-
-    try {
-        $customClaims = ['user_id' => $user->id];
-        $token = JWTAuth::customClaims($customClaims)->fromUser($user);
-
-        return response()->json([
-            'message' => 'Logged in successfully',
-            'user' => $user
-        ])->cookie(
-            'jwt_token',
-            $token,
-            1440,
-            '/',
-            null,
-            true,
-            true,
-            false,
-            'Strict'
-        );
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => 'Could not create token'
-        ], 500);
-    }
-}
-
 
     public function user(Request $request) {
         // Get the authenticated user from the API guard
@@ -115,36 +131,36 @@ class AuthController extends Controller
 
     // Optional: Add a refresh token method
     public function refresh(Request $request) {
-    try {
-        $token = $request->cookie('jwt_token');
-        
-        if (!$token) {
-            return response()->json(['error' => 'Token not provided'], 401);
+        try {
+            $token = $request->cookie('jwt_token');
+            
+            if (!$token) {
+                return response()->json(['error' => 'Token not provided'], 401);
+            }
+
+            // Set the token and refresh it
+            $newToken = JWTAuth::setToken($token)->refresh();
+
+            return response()->json([
+                'message' => 'Token refreshed successfully'
+            ])->cookie(
+                'jwt_token',
+                $newToken,
+                config('jwt.refresh_ttl'), // Use config value
+                '/',
+                null,
+                request()->secure(), // Use HTTPS in production
+                true, // HTTP only
+                false,
+                'Strict'
+            );
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+            return response()->json(['error' => 'Token has expired and cannot be refreshed'], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return response()->json(['error' => 'Token is invalid'], 401);
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return response()->json(['error' => 'Could not refresh token'], 401);
         }
-
-        // Set the token and refresh it
-        $newToken = JWTAuth::setToken($token)->refresh();
-
-        return response()->json([
-            'message' => 'Token refreshed successfully'
-        ])->cookie(
-            'jwt_token',
-            $newToken,
-            config('jwt.refresh_ttl'), // Use config value
-            '/',
-            null,
-            request()->secure(), // Use HTTPS in production
-            true, // HTTP only
-            false,
-            'Strict'
-        );
-
-    } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
-        return response()->json(['error' => 'Token has expired and cannot be refreshed'], 401);
-    } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-        return response()->json(['error' => 'Token is invalid'], 401);
-    } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-        return response()->json(['error' => 'Could not refresh token'], 401);
     }
-}
 }

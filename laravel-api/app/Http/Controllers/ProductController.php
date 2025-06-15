@@ -13,11 +13,32 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $products= Product::all();
+        $perPage = $request->get('per_page'); // default is 2 per page
+        $query = Product::query();
 
-        return response()->json(['products'=>$products]);
+        if ($request->has('q')) {
+            $search = $request->get('q');
+
+            // Example: search by name or email
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        $products = $query->paginate($perPage);
+
+        return response()->json([
+            'data' => $products->items(),
+            'current_page' => $products->currentPage(),
+            'last_page' => $products->lastPage(),
+            'per_page' => $products->perPage(),
+            'total' => $products->total(),
+            'from' => $products->firstItem(),
+            'to' => $products->lastItem(),
+            'has_more_pages' => $products->hasMorePages()
+        ]);
     }
 
     /**

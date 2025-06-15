@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
-import React from "react";
-import MainLayout from "../../Layouts/MainLayout";
-import { useForm } from '@inertiajs/react';
 
-export default function About({ user }) {
+export default function About() {
 const [activeSection, setActiveSection] = useState('story');
 
   const menuItems = [
@@ -145,10 +142,10 @@ const [activeSection, setActiveSection] = useState('story');
       </div>
 
       {/* Call to Action */}
-      <div className="bg-yellow-500 text-white rounded-lg shadow-md p-6 text-center mb-8">
+      <div className="bg-green-600 text-white rounded-lg shadow-md p-6 text-center mb-8">
         <h2 className="text-2xl font-bold mb-2">Ready to Order?</h2>
         <p className="mb-4">We've created a simple ordering system to make it easy for you to enjoy our homemade specialties.</p>
-        <button className="bg-white text-yellow-400 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition-colors">
+        <button className="bg-white text-green-500 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition-colors">
           Order Now
         </button>
       </div>
@@ -169,5 +166,3 @@ const [activeSection, setActiveSection] = useState('story');
 };
 
 
-
-About.layout = (page) => <MainLayout auth={page.props.auth} children={page} />;

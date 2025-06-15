@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\UserController;
 
 Route::middleware('guest')->group(function(){
     // REGISTER
@@ -19,4 +20,6 @@ Route::middleware('jwt.cookie')->group(function () {
     Route::post('/logout', [AuthController::class , 'logout']);
     Route::post('/refresh', [AuthController::class , 'refresh']); // Add refresh route
     Route::apiResource('products', ProductController::class);
+    Route::apiResource('users', UserController::class);
+
 });

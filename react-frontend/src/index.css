@@ -1,5 +1,8 @@
 
 @import "tailwindcss";
+#nprogress .bar {
+  background: rgb(101, 163, 101)!important;
+}
 
 
 @media (min-width: 320px) {

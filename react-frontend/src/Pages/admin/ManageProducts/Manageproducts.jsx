@@ -3,29 +3,99 @@ import { Link } from "react-router-dom";
 import { useProducts, useDeleteProduct } from '../../../hooks/useProducts';
 
 export default function Manageproducts() {
-  const { data: products, isLoading } = useProducts();
-  const deleteProduct = useDeleteProduct();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [perPage, setPerPage] = useState(8);
+  const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    router.get('/products/search', { search }); // adjust as needed
+  const { data, isLoading, error } = useProducts(currentPage, perPage, search);
+  const products = data?.data;
+
+  const totalProducts = data?.total || data?.meta?.total || 0; // Fixed variable name
+  const totalPages = data?.last_page || data?.meta?.last_page || 1;
+  const deleteProduct = useDeleteProduct();
+
+  
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
-  const handleDelete = (id) => {
-  if (confirm('Are you sure you want to delete this product?')) {
-    deleteProduct.mutate(id, {
-      onSuccess: () => {
-        console.log('Product deleted');
-      },
-      onError: (error) => {
-        console.error('Delete failed', error);
-      }
-    });
-  }
-};
+  const handlePerPageChange = (e) => {
+    setPerPage(parseInt(e.target.value));
+    setCurrentPage(1);
+  };
 
+  const handleSearch = () => {
+    setSearch(input);
+    setCurrentPage(1);
+  };
+ 
+  const handleDelete = (id) => {
+    if (confirm('Are you sure you want to delete this product?')) {
+      deleteProduct.mutate(id, {
+        onSuccess: () => {
+          console.log('Product deleted');
+        },
+        onError: (error) => {
+          console.error('Delete failed', error);
+        }
+      });
+    }
+  };
+
+  const renderPaginationButtons = () => {
+    const buttons = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    buttons.push(
+      <button
+        key="prev"
+        onClick={() => handlePageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-3 py-2 mx-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Previous
+      </button>
+    );
+
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`px-3 py-2 mx-1 rounded ${
+            i === currentPage
+              ? 'bg-blue-500 text-white'
+              : 'bg-gray-200 hover:bg-gray-300'
+          }`}
+        >
+          {i}
+        </button>
+      );
+    }
+
+    buttons.push(
+      <button
+        key="next"
+        onClick={() => handlePageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-3 py-2 mx-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        Next
+      </button>
+    );
+
+    return buttons;
+  };
 
   return (
     <div className="w-full h-full overflow-hidden flex flex-col">
@@ -36,19 +106,19 @@ export default function Manageproducts() {
         </Link>
       </div>
 
-      <form onSubmit={handleSearch} className="flex h-[10%] items-center">
+      <div className="flex h-[10%] items-center">
         <input
           className="h-10 w-64 bg-white pl-3"
           type="text"
           placeholder="Search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
           name="search"
         />
-        <button className="bg-gray-200 flex justify-center items-center" type="submit">
+        <button className="bg-gray-200 flex justify-center items-center" onClick={handleSearch} type="submit">
           <i className="fa fa-search bg-gray-100 p-3"></i>
         </button>
-      </form>
+      </div>
 
       <div className="overflow-y-auto h-[80%]">
         <table className="w-full text-center border-collapse table-fixed font overflow-auto">
@@ -68,8 +138,14 @@ export default function Manageproducts() {
               <tr>
                 <td colSpan="7" className="text-center py-4">Loading...</td>
               </tr>
-            ) : products.products && products.products.length > 0 ? (
-              products.products.map((product) => (
+            ) : error ? (
+              <tr>
+                <td colSpan="7" className="text-center py-4 text-red-500">
+                  Error: {error.message || 'Failed to load products'}
+                </td>
+              </tr>
+            ) : products && Array.isArray(products) && products.length > 0 ? (
+              products.map((product) => (
                 <tr key={product.id} className="bg-white text-sm h-14">
                   <td className="p-3">{product.name}</td>
                   <td>
@@ -85,7 +161,6 @@ export default function Manageproducts() {
                   <td>{product.tub}</td>
                   <td>
                     <div className="flex justify-center items-center gap-2 h-full">
-
                       <Link to={`/admin/updateProduct/${product.id}`} className="bg-gray-100 text-green-600 h-8 w-20 flex justify-center items-center">
                         <i className="fas fa-edit"></i> Edit
                       </Link>
@@ -95,20 +170,23 @@ export default function Manageproducts() {
                       >
                         <i className="fa fa-trash"></i> Delete
                       </button>
-
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="7" className="text-center py-4">No products found.</td>
+                <td colSpan="7" className="text-center py-4">
+                  No products found. {data ? `Check console for data structure.` : 'No data received from API.'}
+                </td>
               </tr>
             )}
           </tbody>
         </table>
+        <div className="flex justify-center">
+          {renderPaginationButtons()}
+        </div>
       </div>
     </div>
   );
 }
-

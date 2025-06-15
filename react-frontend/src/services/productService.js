@@ -1,8 +1,12 @@
 import api from '../axios';
 
-export const getProducts = async () => {
-  const { data } = await api.get('/products');
-  return data;
+export const getProducts = async (page, perPage, search ) => {
+  const params = new URLSearchParams();
+  params.append('page', page);
+  params.append('per_page', perPage);
+  if (search) params.append('q', search); // Add this only if search is provided
+  const response = await api.get(`/products?${params.toString()}`);
+  return response.data;
 };
 
 export const getProductById = async (id) => {
@@ -27,8 +31,3 @@ export const deleteProduct = async (id) => {
   return data;
 };
 
-// Fixed the searchProduct function
-export const searchProduct = async (searchTerm) => {
-  const { data } = await api.get(`/products/search?q=${searchTerm}`);
-  return data;
-};

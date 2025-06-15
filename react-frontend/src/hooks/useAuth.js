@@ -21,6 +21,13 @@ export const useLogin = () => {
   });
 };
 
+// src/hooks/useAuth.js
+export const useRegister = () => {
+  return useMutation({
+    mutationFn: authService.register,
+  });
+};
+
 export const useLogout = () => {
   const queryClient = useQueryClient();
   return useMutation({
