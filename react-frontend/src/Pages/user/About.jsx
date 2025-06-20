@@ -70,17 +70,17 @@ const [activeSection, setActiveSection] = useState('story');
                 {
                   title: 'Fresh Salads',
                   description: 'Vibrant, crisp salads using locally sourced ingredients.',
-                  image: '/images/veggiessalad.jpg'
+                  image: 'http://localhost:8000/images/veggiessalad.jpg'
                 },
                 {
                   title: 'Delightful Jellies',
                   description: 'Colorful and flavorful jellies made with natural ingredients.',
-                  image: '/images/mangojelly.jpg'
+                  image: 'http://localhost:8000/images/mangojelly.jpg'
                 },
                 {
                   title: 'Graham Desserts',
                   description: 'Homemade graham desserts that have become customer favorites.',
-                  image: '/images/mangograhams.jpg'
+                  image: 'http://localhost:8000/images/mangograhams.jpg'
                 }
               ].map((item, index) => (
                 <div key={index} className="bg-gray-50 rounded-lg overflow-hidden shadow-sm">

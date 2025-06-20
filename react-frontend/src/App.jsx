@@ -8,6 +8,7 @@ import Profile from './Pages/user/Profile';
 import Homepage from './Pages/user/Homepage'
 import Viewproduct from './Pages/user/Viewproduct';
 import About from './Pages/user/About';
+import Cart from './Pages/user/Cart';
 
 import AdminLayout from './Layouts/AdminLayout';
 import Dashboard from './Pages/admin/ManageProducts/Dashboard';
@@ -36,6 +37,10 @@ function App() {
           <Route path="homepage" element={<Homepage/>}></Route>
           <Route path="viewProduct/:id" element={<Viewproduct/>}></Route>
           <Route path="about" element={<About/>}></Route>
+          <Route path="cart" element={<Cart/>}>
+          
+          </Route>
+
           
         </Route>
 

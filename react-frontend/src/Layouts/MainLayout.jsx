@@ -14,9 +14,8 @@ export default function MainLayout() {
     navigate("/login");
   };
 
-
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen  ">
       <nav className="flex w-full min-h-24 bg-neutral-900 items-center justify-end px-72">
         <img
           src="http://localhost:8000/images/bettertastelogo.png"
@@ -37,7 +36,7 @@ export default function MainLayout() {
           {user ? (
             <div className="group relative">
               <img
-                src={user.avatar || "http://localhost:8000/images/noimage.png"}
+                src={`http://localhost:8000/storage/${user?.image}` || "http://localhost:8000/images/noimage.png"}
                 alt="profile"
                 className="ml-2 h-10 w-10 rounded-full cursor-pointer"
               />
@@ -91,7 +90,7 @@ export default function MainLayout() {
         </ul>
       </nav>
 
-      <div className="flex-grow py-20 px-72 box-border">
+      <div className="flex-grow py-20 px-72 box-border bg-gray-50  ">
         <Outlet />
       </div>
 

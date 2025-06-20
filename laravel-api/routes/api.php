@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\CartController;
 
 Route::middleware('guest')->group(function(){
     // REGISTER
@@ -21,5 +22,9 @@ Route::middleware('jwt.cookie')->group(function () {
     Route::post('/refresh', [AuthController::class , 'refresh']); // Add refresh route
     Route::apiResource('products', ProductController::class);
     Route::apiResource('users', UserController::class);
+
+    Route::get('/cart', [CartController::class, 'show']);
+    Route::post('/cart/add', [CartController::class, 'add']);
+    Route::delete('/cart/remove', [CartController::class, 'remove']);
 
 });

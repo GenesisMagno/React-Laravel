@@ -107,7 +107,9 @@ export default function Profile() {
   if (userError) return <p>Error loading user.</p>;
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className='w-full pt-12'>
+    <label className="text-[2.50rem] font-sans font-medium antialiased ml-10 ">Profile</label>
+    <div className="max-w-6xl mx-auto mt-6 p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
       {/* General Error Message */}
       {errors.general && (
         <div className="col-span-full text-center text-red-500 mb-4">
@@ -116,8 +118,8 @@ export default function Profile() {
       )}
 
       {/* Image Section */}
-      <div className="flex flex-col items-center justify-center">
-        <div className="w-40 h-40 rounded-full overflow-hidden mb-4">
+      <div className="flex flex-col items-center justify-center col-span-2">
+        <div className="w-70 h-70 rounded-full overflow-hidden mb-4">
           <img 
             src={imagePreview} 
             alt="Profile" 
@@ -229,6 +231,7 @@ export default function Profile() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

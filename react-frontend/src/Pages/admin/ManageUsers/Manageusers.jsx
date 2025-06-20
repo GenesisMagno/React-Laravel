@@ -3,7 +3,7 @@ import { useUsers } from '../../../hooks/useUser';
 
 const UsersList = () => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [perPage, setPerPage] = useState(8);
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
 
