@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useProduct } from "../../hooks/useProducts";
+import { useAddToCart, useUpdateQuantity } from "../../hooks/useCart";
 
 export default function Viewproduct() {
     const { id } = useParams();
     const { data, isLoading, isError } = useProduct(id);
+    const addToCartMutation = useAddToCart();    
     const product = data?.product;
 
     const [selectedSize, setSelectedSize] = useState("tub");
@@ -19,6 +21,31 @@ export default function Viewproduct() {
             setTotalPrice(product[selectedSize] * quantity);
         }
     }, [product, selectedSize, quantity]);
+
+    const handleAddToCart = () => {
+        if (!product || !selectedSize || quantity < 1) {
+            alert('Please select a valid size and quantity');
+            return;
+        }
+
+        const cartItem = {
+            product_id: parseInt(id),
+            product_image: product.image,
+            product_price: productPrice.toString(), 
+            size: selectedSize,
+            quantity: quantity
+        };
+
+        addToCartMutation.mutate(cartItem, {
+            onSuccess: () => {
+                alert('Added to cart successfully!');
+            },
+            onError: (error) => {
+                console.error('Error adding to cart:', error);
+                alert('Failed to add to cart. Please try again.');
+            }
+        });
+    };
 
     if (isLoading) return <></>;
     if (isError || !product) return <p className="text-center text-lg text-red-500">Product not found.</p>;
@@ -88,8 +115,17 @@ export default function Viewproduct() {
                         Order Now
                     </Link>
 
-                    <button className="border border-green-700 bg-green-50 text-green-700 px-14 py-3 mt-4 text-center text-xl w-[50%] hover:bg-green-100 rounded">
-                        <span className="fa fa-shopping-cart text-xl mr-3"> </span>Add To Cart
+                    <button 
+                        onClick={handleAddToCart}
+                        disabled={addToCartMutation.isLoading || !product[selectedSize]}
+                        className={`border border-green-700 bg-green-50 text-green-700 px-14 py-3 mt-4 text-center text-xl w-[50%] hover:bg-green-100 rounded 
+                            ${addToCartMutation.isLoading || !product[selectedSize] 
+                                ? 'opacity-50 cursor-not-allowed' 
+                                : ''
+                            }`}
+                    >
+                        <span className="fa fa-shopping-cart text-xl mr-3"> </span>
+                        {addToCartMutation.isLoading ? 'Adding...' : 'Add To Cart'}
                     </button>
                 </div>
             </div>

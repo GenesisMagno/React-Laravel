@@ -17,10 +17,12 @@ class CartController extends Controller
 
     public function add(Request $request)
     {
-        $validated = $request->validate([
+       $validated = $request->validate([
             'product_id' => 'required|exists:products,id',
             'size'       => 'required|in:big,medium,platter,tub',
             'quantity'   => 'required|integer|min:1',
+            'product_image' => 'required|string',
+            'product_price' => 'required|string',
         ]);
 
         $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
@@ -35,6 +37,35 @@ class CartController extends Controller
 
         return response()->json(['message' => 'Added to cart']);
     }
+
+    public function updateQuantity(Request $request)
+    {
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'size'       => 'required|in:big,medium,platter,tub',
+            'quantity'   => 'required|integer|min:1',
+        ]);
+
+        $cart = Cart::where('user_id', $request->user()->id)->first();
+
+        if (!$cart) {
+            return response()->json(['message' => 'Cart not found'], 404);
+        }
+
+        $item = $cart->items()
+            ->where('product_id', $validated['product_id'])
+            ->where('size', $validated['size'])
+            ->first();
+
+        if (!$item) {
+            return response()->json(['message' => 'Cart item not found'], 404);
+        }
+
+        $item->update(['quantity' => $validated['quantity']]);
+
+        return response()->json(['message' => 'Cart item quantity updated']);
+    }
+
 
     public function remove(Request $request)
     {

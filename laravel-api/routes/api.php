@@ -25,6 +25,7 @@ Route::middleware('jwt.cookie')->group(function () {
 
     Route::get('/cart', [CartController::class, 'show']);
     Route::post('/cart/add', [CartController::class, 'add']);
-    Route::delete('/cart/remove', [CartController::class, 'remove']);
+    Route::post('/cart/remove', [CartController::class, 'remove']);
+    Route::post('/cart/update-quantity', [CartController::class, 'updateQuantity']);
 
 });

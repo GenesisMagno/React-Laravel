@@ -1,189 +1,238 @@
 import { useState } from 'react';
+import { useCart, useRemoveFromCart, useUpdateQuantity } from '../../hooks/useCart';
+import { Link } from 'react-router-dom';
 
 export default function Cart(){
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "AMD Ryzen 7 7700X 8 Core 16 Thread Processor",
-      image: "/api/placeholder/80/80",
-      price: 20995,
-      quantity: 1,
-      size: "Standard",
-    },
-    {
-      id: 2,
-      name: "PlayStation PS5 Slim Console - Disc Version",
-      image: "/api/placeholder/80/80",
-      price: 33490,
-      originalPrice: 40929,
-      quantity: 1,
-      size: "825GB",
-    },
-    {
-      id: 3,
-      name: "Lexar NM610 Pro M.2 2280 PCIe Gen3x4 NVMe Internal SSD",
-      image: "/api/placeholder/80/80",
-      price: 3250,
-      quantity: 1,
-      size: "1TB",
-    },
-    {
-      id: 4,
-      name: "Sapphire Pulse AMD Radeon™ RX 7800 XT 16GB/256 bit DDR6 Du...",
-      image: "/api/placeholder/80/80",
-      price: 33395,
-      quantity: 1,
-      size: "16GB",
-    },
-    {
-      id: 5,
-      name: "darkFlash Nebula DN-360 RGB AII-In-One 360mm Liquid CPU...",
-      image: "/api/placeholder/80/80",
-      price: 4150,
-      quantity: 1,
-      size: "360mm",
-    }
-  ]);
+  const { data: cartData, isLoading, error } = useCart();
+  const removeFromCartMutation = useRemoveFromCart();
+  const updateQuantityMutation = useUpdateQuantity();
+  const [selectedItems, setSelectedItems] = useState(new Set());
 
-  const updateQuantity = (id, newQuantity) => {
+  const cartItems = cartData?.items || [];
+
+  const updateQuantity = (productId, size, newQuantity) => {
     if (newQuantity < 1) return;
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      )
-    );
+    
+    updateQuantityMutation.mutate({
+      product_id: productId,
+      size: size,
+      quantity: newQuantity
+    });
   };
 
+  const handleRemoveItem = (productId, size) => {
+    removeFromCartMutation.mutate({ product_id: productId, size });
+  };
+
+  const handleSelectItem = (itemId) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(itemId)) {
+      newSelected.delete(itemId);
+    } else {
+      newSelected.add(itemId);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.size === cartItems.length) {
+      setSelectedItems(new Set());
+    } else {
+      setSelectedItems(new Set(cartItems.map(item => item.id)));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    const selectedCartItems = cartItems.filter(item => selectedItems.has(item.id));
+    selectedCartItems.forEach(item => {
+      handleRemoveItem(item.product_id, item.size);
+    });
+    setSelectedItems(new Set());
+  };
 
   const formatPrice = (price) => {
-    return `₱${price.toLocaleString()}`;
+    return `₱${parseFloat(price).toLocaleString()}`;
   };
 
+  const selectedCartItems = cartItems.filter(item => selectedItems.has(item.id));
+  const totalSelectedItems = selectedCartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalSelectedPrice = selectedCartItems.reduce((sum, item) => sum + (item.product_price * item.quantity), 0);
+
   return (
-    <div className="w-full mx-auto max-w-full p-4 bg-gray-50 h-auto">
+    <div className="w-full mx-auto max-w-full py-16 bg-gray-50 h-auto">
       {/* Header */}
       <div className="bg-white rounded-lg shadow-sm mb-4">
-        <div className="flex items-center p-4 border-b border-b-gray-300">
+        <div className="flex items-center p-4 border-b border-b-gray-300 h-16">
           <span className="text-green-600 font-medium mr-4">Shopping Cart</span>
            <span className="fa fa-shopping-cart text-xl"> </span>
         </div>
         
         {/* Table Header */}
-        <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 text-sm font-medium text-gray-600">
+        <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 text-sm font-medium text-gray-600 h-14">
           <div className="col-span-1"></div>
-          <div className="col-span-4">Product</div>
+          <div className="col-span-3">Product</div>
           <div className="col-span-1 text-center">Size</div>
           <div className="col-span-2 text-center">Price</div>
           <div className="col-span-2 text-center">Quantity</div>
           <div className="col-span-2 text-center">Total Price</div>
-          
+          <div className="col-span-1"></div>
         </div>
 
-        {/* Cart Items */}
+        {/* Cart Items or Loading/Error */}
         <div className="divide-y divide-gray-200">
-          {cartItems.map((item) => (
-            <div key={item.id} className="grid grid-cols-12 gap-4 p-4 items-center relative">
-              
-              
-              {/* Checkbox */}
-              <div className="col-span-1">
-                <input type="checkbox" className="mr-2" />
+          {isLoading ? (
+            <div className="p-8 text-center text-gray-500">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-green-600"></div>
+                <span>Loading cart...</span>
               </div>
+            </div>
+          ) : error ? (
+            <div className="p-8 text-center text-red-600">
+              Error loading cart: {error.message}
+            </div>
+          ) : cartItems.length === 0 ? (
+            <div className="p-8 text-center text-gray-500">
+              Your cart is empty
+            </div>
+          ) : (
+            cartItems.map((item) => (
+              <div key={item.id} className="grid grid-cols-12 gap-4 p-4 items-center relative hover:bg-gray-50">
+                {/* Checkbox */}
+                <div className="col-span-1">
+                  <input 
+                    type="checkbox" 
+                    className="mr-2 accent-green-700"
+                    checked={selectedItems.has(item.id)}
+                    onChange={() => handleSelectItem(item.id)}
+                  />
+                </div>
 
-              {/* Product Info */}
-              <div className="col-span-4">
-                <div className="flex items-start space-x-3">
-                  <div className="relative">
-                    <img 
-                      src={item.image} 
-                      alt={item.name}
-                      className="w-20 h-20 object-cover rounded border"
-                    />
-                  </div>
-                  
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-900 mb-2 line-clamp-2">
-                      {item.name}
-                    </h3>
-                 
+                {/* Product Info */}
+                <div className="col-span-3">
+                  <Link  to={`/viewProduct/${item.product.id}`} className="flex items-start space-x-3 ">
+                    <div className="relative">
+                      <img 
+                        src={`http://localhost:8000/storage/${item.product?.image}` || "/api/placeholder/80/80"} 
+                        alt={item.product?.name || 'Product'}
+                        className="w-20 h-20 object-cover rounded border"
+                      />
+                    </div>
+                    
+                    <div className="flex-1 ">
+                      <h3 className="text-lg font-medium text-gray-900 mb-2 line-clamp-2">
+                        {item.product?.name || 'Unknown Product'}
+                      </h3>
+                      
+                    </div>
+                  </Link>
+                </div>
+
+                {/* Size */}
+                <div className="col-span-1 text-center">
+                  <span className="text-sm text-gray-600 capitalize">{item.size}</span>
+                </div>
+
+                {/* Unit Price */}
+                <div className="col-span-2 text-center">
+                  <div className="text-sm">
+                    <span className="font-medium">{formatPrice(item?.product_price || 0)}</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Size */}
-              <div className="col-span-1 text-center">
-                <span className="text-sm text-gray-600">{item.size}</span>
-              </div>
-
-              {/* Unit Price */}
-              <div className="col-span-2 text-center">
-                <div className="text-sm">
-                  {item.originalPrice && (
-                    <span className="text-gray-400 line-through text-xs block">
-                      {formatPrice(item.originalPrice)}
-                    </span>
+                {/* Quantity */}
+                <div className="col-span-2 text-center">
+                  <div className="flex items-center justify-center space-x-2">
+                    <button
+                      onClick={() => updateQuantity(item.product_id, item.size, item.quantity - 1)}
+                      className="w-6 h-6 border rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={item.quantity <= 1 || updateQuantityMutation.isLoading}
+                    >
+                      −
+                    </button>
+                    <span className="w-12 text-center">{item.quantity}</span>
+                    <button
+                      onClick={() => updateQuantity(item.product_id, item.size, item.quantity + 1)}
+                      className="w-6 h-6 border rounded flex items-center justify-center hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={updateQuantityMutation.isLoading}
+                    >
+                      +
+                    </button>
+                  </div>
+                  {/* Show loading state for quantity updates */}
+                  {updateQuantityMutation.isLoading && (
+                    <div className="text-xs text-gray-500 mt-1">Updating...</div>
                   )}
-                  <span className="font-medium">{formatPrice(item.price)}</span>
                 </div>
-              </div>
 
-              {/* Quantity */}
-              <div className="col-span-2 text-center">
-                <div className="flex items-center justify-center space-x-2">
+                {/* Total Price */}
+                <div className="col-span-2 text-center">
+                  <span className="font-medium text-green-700 text-lg">
+                    {formatPrice((item?.product_price || 0) * item.quantity)}
+                  </span>
+                </div>
+
+                {/* Remove */}
+                <div className="col-span-1 flex">
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                    className="w-8 h-8 border rounded flex items-center justify-center hover:bg-gray-100"
-                    disabled={item.quantity <= 1}
-                  >
-                    −
+                    onClick={() => handleRemoveItem(item.product_id, item.size)}
+                    className=" text-lg text-red-700 hover:text-red-800 hover:underline flex gap-1 items-center"
+                    disabled={removeFromCartMutation.isLoading}
+                  > 
+                    <span className="fa-solid fa-trash text-sm"></span>
+                    <span className='text-xs'>
+                        {removeFromCartMutation.isLoading ? 'Removing...' : 'Remove'}
+                    </span>
                   </button>
-                  <span className="w-12 text-center">{item.quantity}</span>
-                  <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                    className="w-8 h-8 border rounded flex items-center justify-center hover:bg-gray-100"
-                    disabled={item.quantity >= item.stock}
-                  >
-                    +
-                  </button>
+                      
                 </div>
                 
               </div>
-
-              {/* Total Price */}
-              <div className="col-span-2 text-center">
-                <span className="font-medium text-green-600">
-                  {formatPrice(item.price * item.quantity)}
-                </span>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       {/* Cart Summary */}
-      <div className="bg-white rounded-lg shadow-sm p-4 fixed bottom-0 left-0 right-0 w-[70%] mx-auto">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-4">
-            <input type="checkbox" />
-            <span className="text-sm">Select All ({cartItems.length})</span>
-            <button className="text-sm text-green-600 hover:text-green-700">Delete</button>
-          </div>
-          
-          <div className="flex items-center space-x-6">
-            <div className="text-right">
-              <div className="text-sm text-gray-600">
-                Total ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items):
-              </div>
-              <div className="text-xl font-bold text-red-500">
-                {formatPrice(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0))}
-              </div>
+      {cartItems.length > 0 && !isLoading && (
+        <div className="bg-white rounded-lg shadow-sm p-4 fixed bottom-0 left-0 right-0 w-[70%] mx-auto ">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <input 
+                type="checkbox" 
+                className='accent-green-700'
+                checked={selectedItems.size === cartItems.length && cartItems.length > 0}
+                onChange={handleSelectAll}
+              />
+              <span className="text-sm ">Select All ({cartItems.length})</span>
+              <button 
+                className="text-sm text-red-700 hover:text-red-900 disabled:opacity-50"
+                onClick={handleDeleteSelected}
+                disabled={selectedItems.size === 0 || removeFromCartMutation.isLoading}
+              >
+                Delete Selected
+              </button>
             </div>
-            <button className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-medium">
-              Check Out
-            </button>
+            
+            <div className="flex items-center space-x-6">
+              <div className="text-right">
+                <div className="text-sm text-gray-600">
+                  Total ({totalSelectedItems} items):
+                </div>
+                <div className="text-xl font-bold text-green-700">
+                  {formatPrice(totalSelectedPrice)}
+                </div>
+              </div>
+              <button 
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium disabled:opacity-50"
+                disabled={selectedItems.size === 0}
+              >
+                Check Out
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

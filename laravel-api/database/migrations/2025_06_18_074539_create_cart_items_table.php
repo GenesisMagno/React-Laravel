@@ -15,8 +15,10 @@ return new class extends Migration
         $table->id();
         $table->foreignId('cart_id')->constrained()->onDelete('cascade');
         $table->foreignId('product_id')->constrained()->onDelete('cascade');
-        $table->string('size'); // big, medium, etc.
-        $table->integer('quantity');
+        $table->string('product_image');
+        $table->string('product_price');
+        $table->string('size')->nullable(); // big, medium, etc.
+        $table->integer('quantity')->nullable();
         $table->timestamps();
 });
 
@@ -28,7 +30,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('cart_items', function (Blueprint $table) {
-            //
+            $table->dropColumn(['product_image', 'product_price']);
         });
     }
 };

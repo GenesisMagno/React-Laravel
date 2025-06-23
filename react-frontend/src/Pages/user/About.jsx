@@ -11,7 +11,7 @@ const [activeSection, setActiveSection] = useState('story');
   ];
 
   return (
-    <div className="max-w-4/5 mx-auto px-4 font-sans">
+    <div className="max-w-4/5 mx-auto px-4 font-sans pt-20">
       {/* Header */}
       <header className="text-center mb-10">
         <h1 className="text-3xl font-bold text-green-700 mb-2">Better Taste</h1>
@@ -142,7 +142,7 @@ const [activeSection, setActiveSection] = useState('story');
       </div>
 
       {/* Call to Action */}
-      <div className="bg-green-600 text-white rounded-lg shadow-md p-6 text-center mb-8">
+      <div className="bg-gradient-to-r from-green-500 via-green-600 to-green-700 text-white rounded-lg shadow-md p-6 text-center mb-8">
         <h2 className="text-2xl font-bold mb-2">Ready to Order?</h2>
         <p className="mb-4">We've created a simple ordering system to make it easy for you to enjoy our homemade specialties.</p>
         <button className="bg-white text-green-500 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition-colors">

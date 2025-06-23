@@ -90,7 +90,7 @@ export default function MainLayout() {
         </ul>
       </nav>
 
-      <div className="flex-grow py-20 px-72 box-border bg-gray-50  ">
+      <div className="flex-grow  px-72 box-border bg-gray-50  ">
         <Outlet />
       </div>
 
