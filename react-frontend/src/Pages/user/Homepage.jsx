@@ -52,7 +52,7 @@ export default function Homepage() {
             onClick={() => handlePageChange(i)}
             className={`px-4 py-2 mx-1 rounded-lg font-medium transition-all duration-200 text-sm ${
               i === currentPage
-                ? 'bg-gradient-to-r from-green-600 via-green-700 to-green-800 text-white shadow-lg  border-green-700'
+                ? 'bg-gradient-to-r from-green- via-green-700 to-green-800 text-white shadow-lg  border-green-700'
                 : 'bg-white border  text-green-700 hover:bg-green-50 '
             }`}
           >
