@@ -92,6 +92,11 @@ const UsersList = () => {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Search users..."
           className="border rounded px-3 py-2 w-full max-w-xs"
+          onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearch();
+                      }
+                    }}
         />
         <button
           onClick={handleSearch}

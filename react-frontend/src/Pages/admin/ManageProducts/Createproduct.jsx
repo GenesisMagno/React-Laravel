@@ -16,6 +16,7 @@ export default function Createproduct() {
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
   const [includeIngredients, setIncludeIngredients] = useState(false);
+  // Initialize ingredients with one empty ingredient
   const [ingredients, setIngredients] = useState([
     { id: 1, name: '', description: '', image: null, imagePreview: null }
   ]);
@@ -70,7 +71,7 @@ export default function Createproduct() {
   };
 
   const addIngredient = () => {
-    const newId = Math.max(...ingredients.map(ing => ing.id)) + 1;
+    const newId = Math.max(...ingredients.map(ing => ing.id), 0) + 1;
     setIngredients(prev => [...prev, { 
       id: newId, 
       name: '', 
@@ -108,6 +109,11 @@ export default function Createproduct() {
         }
       });
     }
+    
+    console.log('FormData contents:');
+    payload.forEach((value, key) => {
+      console.log(`${key}:`, value);
+    });
 
     createProduct.mutate(payload, {
       onSuccess: () => {
@@ -118,6 +124,7 @@ export default function Createproduct() {
         if (error.response?.data?.errors) {
           setErrors(error.response.data.errors);
         }
+        console.error('Error details:', error.response?.data);
       },
     });
   };
@@ -132,10 +139,10 @@ export default function Createproduct() {
         >
           {/* Main Product Form */}
           <div className="ml-8 h-10 text-4xl font-sans font-[500] antialiased mb-10">Create Product</div>
-          <div className="flex w-full mb-6 min-h-[500px]">
+          <div className="flex w-full mb-6 min-h-[500px] py-4">
             {/* Image Upload */}
             <div className="w-3/5 flex flex-col items-center space-y-4 ">
-              <div className="w-[600px] h-[450px] overflow-hidden border border-dashed border-black bg-gray-200 relative">
+              <div className="w-[600px] h-[450px] overflow-hidden border border-gray-300 bg-gray-200 relative">
                 {imagePreview ? (
                   <img src={imagePreview} className="w-full h-full object-cover" />
                 ) : (
@@ -172,7 +179,7 @@ export default function Createproduct() {
                     name={field.name}
                     value={formData[field.name]}
                     onChange={handleInputChange}
-                    className="rounded-md h-12 px-4 text-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    className="rounded-md h-12 px-4 text-lg border border-gray-300"
                   />
                   {errors[field.name] && <span className="text-red-500 text-sm mt-1">{errors[field.name][0]}</span>}
                 </div>
@@ -181,14 +188,14 @@ export default function Createproduct() {
           </div>
 
           {/* Ingredients Toggle */}
-          <div className="w-full mb-6">
+          <div className="w-4/5 mb-6 mx-auto">
             <div className="flex items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
               <input
                 type="checkbox"
                 id="includeIngredients"
                 checked={includeIngredients}
                 onChange={(e) => setIncludeIngredients(e.target.checked)}
-                className="mr-3 h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded accent-green-400"
+                className="mr-3 h-5 w-5 border-gray-300 rounded accent-white"
               />
               <label htmlFor="includeIngredients" className="text-lg font-medium text-gray-700 cursor-pointer">
                 Include Product Ingredients
@@ -198,7 +205,7 @@ export default function Createproduct() {
 
           {/* Ingredients Section */}
           {includeIngredients && (
-            <div className="w-full">
+            <div className="w-4/5 mx-auto">
               <h3 className="text-2xl font-medium mb-4">Ingredients</h3>
               
               {ingredients.map((ingredient, index) => (
@@ -221,11 +228,11 @@ export default function Createproduct() {
                   <div className="flex gap-4">
                     {/* Ingredient Image */}
                     <div className="w-1/2 flex flex-col items-center">
-                      <div className="w-full h-48 border border-dashed border-gray-400 bg-gray-100 relative mb-2">
+                      <div className="w-56 h-56 border border-gray-400 bg-gray-100 relative mb-2 rounded-full">
                         {ingredient.imagePreview ? (
                           <img 
                             src={ingredient.imagePreview} 
-                            className="w-full h-full object-cover" 
+                            className="w-full h-full object-cover rounded-full" 
                             alt="Ingredient preview"
                           />
                         ) : (
@@ -241,7 +248,7 @@ export default function Createproduct() {
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleIngredientImageChange(ingredient.id, e.target.files[0])}
-                        className="text-sm text-gray-900 border rounded-lg cursor-pointer w-full"
+                        className="text-sm text-gray-900 border rounded-lg cursor-pointer w-2/5"
                       />
                     </div>
 

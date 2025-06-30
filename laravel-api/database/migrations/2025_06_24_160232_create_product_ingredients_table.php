@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('product_ingredients', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->string('ingredient_image');
-            $table->string('ingredient_name');
-            $table->string('ingredient_description');
+            $table->string('image')->nullable();
+            $table->string('name')->nullable();
+            $table->string('description')->nullable();
             $table->timestamps();
         });
     }

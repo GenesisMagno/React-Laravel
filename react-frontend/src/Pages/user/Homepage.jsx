@@ -52,7 +52,7 @@ export default function Homepage() {
             onClick={() => handlePageChange(i)}
             className={`px-4 py-2 mx-1 rounded-lg font-medium transition-all duration-200 text-sm ${
               i === currentPage
-                ? 'bg-gradient-to-r from-green- via-green-700 to-green-800 text-white shadow-lg  border-green-700'
+                ? 'bg-green-800 text-white shadow-lg  border-green-700'
                 : 'bg-white border  text-green-700 hover:bg-green-50 '
             }`}
           >
@@ -80,7 +80,7 @@ export default function Homepage() {
 
             <div className="mb-16 flex justify-end items-center">
 
-                <label className="text-[2.50rem]  font-medium antialiased mr-auto ">Products</label>
+                <label className="text-[2.50rem]  font-semibold antialiased mr-auto ">Products</label>
                 <div className="flex h-[10%] items-center mr-6">
                     <input
                     className="h-12 w-64 bg-white pl-3 border-2 border-gray-100 rounded-l"
@@ -122,7 +122,7 @@ export default function Homepage() {
                             />
                             <div>
                                 <span className="text-xl font-medium mr-3">{product.name}</span>
-                                <span className="text-sm font-medium">₱-{product.tub||product.platter||product.medium||product.big}</span>
+                                <span className="text-sm font-semibold text-gray-800">₱-{product.tub||product.platter||product.medium||product.big}</span>
                             </div>
                         </Link>
                     </div>

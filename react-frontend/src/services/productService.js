@@ -24,10 +24,10 @@ export const updateProduct = async ({ id, formData }) => {
     return data;
 };
 
-
-
 export const deleteProduct = async (id) => {
   const { data } = await api.delete(`/products/${id}`);
   return data;
 };
+
+
 

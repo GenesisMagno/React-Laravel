@@ -5,7 +5,7 @@ import { useProducts, useDeleteProduct } from '../../../hooks/useProducts';
 export default function Manageproducts() {
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(8);
+  const [perPage, setPerPage] = useState(9);
   const [input, setInput] = useState('');
   const [search, setSearch] = useState('');
 
@@ -74,7 +74,7 @@ export default function Manageproducts() {
           onClick={() => handlePageChange(i)}
           className={`px-3 py-2 mx-1 rounded ${
             i === currentPage
-              ? 'bg-blue-500 text-white'
+              ? 'bg-green-700 text-white'
               : 'bg-gray-200 hover:bg-gray-300'
           }`}
         >
@@ -100,90 +100,99 @@ export default function Manageproducts() {
   return (
     <div className="w-full h-full overflow-hidden flex flex-col">
       <div className="flex h-[10%]">
-        <label className="text-4xl font-sans font-[500] antialiased">Manage Product</label>
+        <label className="text-4xl antialiased font-semibold">Manage Product</label>
         <Link 
-          to="/admin/createProduct" className="ml-auto bg-green-700 text-white rounded-sm w-40 h-10 flex justify-center items-center text-lg text-center">Add Product
+          to="/admin/createProduct" className="ml-auto bg-green-700 hover:bg-green-800 text-white rounded-sm w-40 h-10 flex justify-center items-center text-lg text-center font-medium">
+            Add Product
         </Link>
       </div>
 
       <div className="flex h-[10%] items-center">
         <input
-          className="h-10 w-64 bg-white pl-3"
+          className="h-12 w-64 bg-white pl-3 rounded-l-md"
           type="text"
           placeholder="Search"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           name="search"
         />
-        <button className="bg-gray-200 flex justify-center items-center" onClick={handleSearch} type="submit">
-          <i className="fa fa-search bg-gray-100 p-3"></i>
+        <button className="bg-gray-200 flex justify-center items-center " onClick={handleSearch} type="submit" 
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch();
+            }
+          }}>
+          <i className="fa fa-search bg-gray-100 p-4 rounded-r-md"></i>
         </button>
       </div>
 
-      <div className="overflow-y-auto h-[80%]">
-        <table className="w-full text-center border-collapse table-fixed font overflow-auto">
-          <thead>
-            <tr className="bg-gray-50 sticky top-0">
-              <th className="p-3">Name</th>
-              <th>Image</th>
-              <th>Big</th>
-              <th>Medium</th>
-              <th>Platter</th>
-              <th>Tub</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan="7" className="text-center py-4">Loading...</td>
+      <div className="h-[80%] overflow-hidden border border-gray-200">
+        <div className="overflow-auto rounded-md" >
+          <table className="w-full text-center border-collapse table-fixed">
+            <thead>
+              <tr className="bg-gray-50 sticky top-0">
+                <th className="text-gray-700 font-semibold py-3">Name</th>
+                <th className="text-gray-700 font-semibold">Image</th>
+                <th className="text-gray-700 font-semibold">Big</th>
+                <th className="text-gray-700 font-semibold">Medium</th>
+                <th className="text-gray-700 font-semibold">Platter</th>
+                <th className="text-gray-700 font-semibold">Tub</th>
+                <th></th>
               </tr>
-            ) : error ? (
-              <tr>
-                <td colSpan="7" className="text-center py-4 text-red-500">
-                  Error: {error.message || 'Failed to load products'}
-                </td>
-              </tr>
-            ) : products && Array.isArray(products) && products.length > 0 ? (
-              products.map((product) => (
-                <tr key={product.id} className="bg-white text-sm h-14">
-                  <td className="p-3">{product.name}</td>
-                  <td>
-                    <img
-                      className="h-10 w-10 inline rounded-4xl"
-                      src={`http://localhost:8000/storage/${product.image}`}
-                      alt={product.name}
-                    />
-                  </td>
-                  <td>{product.big}</td>
-                  <td>{product.medium}</td>
-                  <td>{product.platter}</td>
-                  <td>{product.tub}</td>
-                  <td>
-                    <div className="flex justify-center items-center gap-2 h-full">
-                      <Link to={`/admin/updateProduct/${product.id}`} className="bg-gray-100 text-green-600 h-8 w-20 flex justify-center items-center">
-                        <i className="fas fa-edit"></i> Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="bg-gray-100 text-red-600 h-8 w-20 flex justify-center items-center"
-                      >
-                        <i className="fa fa-trash"></i> Delete
-                      </button>
-                    </div>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {isLoading ? (
+                <tr>
+                  <td colSpan="7" className="text-center py-4">Loading...</td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan="7" className="text-center py-4 text-red-500">
+                    Error: {error.message || 'Failed to load products'}
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="text-center py-4">
-                  No products found. {data ? `Check console for data structure.` : 'No data received from API.'}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-center">
+              ) : products && Array.isArray(products) && products.length > 0 ? (
+                products.map((product) => (
+                  <tr key={product.id} className="bg-white text-sm h-14">
+                    <td className="p-3 font-bold text-md">{product.name}</td>
+                    <td>
+                      <img
+                        className="h-10 w-10 inline rounded-4xl"
+                        src={`http://localhost:8000/storage/${product.image}`}
+                        alt={product.name}
+                      />
+                    </td>
+                    <td className="text-gray-600 font-semibold">{product.big}</td>
+                    <td className="text-gray-600 font-semibold">{product.medium}</td>
+                    <td className="text-gray-600 font-semibold">{product.platter}</td>
+                    <td className="text-gray-600 font-semibold">{product.tub}</td>
+                    <td>
+                      <div className="flex justify-center items-center gap-2 h-full">
+                        <Link to={`/admin/updateProduct/${product.id}`} className="bg-gray-50 hover:bg-gray-100 text-green-700 h-8 w-20 flex justify-center items-center rounded-md">
+                          <i className="fas fa-edit"></i> Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDelete(product.id)}
+                          className="bg-gray-50 hover:bg-gray-100 text-red-700 h-8 w-20 flex justify-center items-center rounded-md"
+                        >
+                          <i className="fa fa-trash"></i> Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="7" className="text-center py-4">
+                    No products found. {data ? `Check console for data structure.` : 'No data received from API.'}
+                  </td>
+                </tr>
+              )}
+          
+            </tbody>
+          </table>
+        </div>
+        <div className="flex justify-center border-t border-gray-200 pt-4">
           {renderPaginationButtons()}
         </div>
       </div>

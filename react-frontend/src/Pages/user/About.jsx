@@ -25,7 +25,7 @@ const [activeSection, setActiveSection] = useState('story');
             key={item.id}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               activeSection === item.id
-                ? 'bg-green-600 text-white'
+                ? 'bg-green-700 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
             onClick={() => setActiveSection(item.id)}
@@ -142,7 +142,7 @@ const [activeSection, setActiveSection] = useState('story');
       </div>
 
       {/* Call to Action */}
-      <div className="bg-gradient-to-r from-green-500 via-green-600 to-green-700 text-white rounded-lg shadow-md p-6 text-center mb-8">
+      <div className="bg-gradient-to-r from-green-600 via-green-600 to-green-800 text-white rounded-lg shadow-md p-6 text-center mb-8">
         <h2 className="text-2xl font-bold mb-2">Ready to Order?</h2>
         <p className="mb-4">We've created a simple ordering system to make it easy for you to enjoy our homemade specialties.</p>
         <button className="bg-white text-green-500 font-bold py-2 px-6 rounded-full hover:bg-gray-100 transition-colors">

@@ -76,7 +76,7 @@ export default function AdminLayout() {
                         </ul>
                     </div>
 
-                    <div className="w-4/5 h-full bg-gray-200 px-24 pt-20 pb-12">
+                    <div className="w-4/5 h-full bg-gray-200 px-24 py-12">
                         <Outlet/>
                     </div>
                 </div>

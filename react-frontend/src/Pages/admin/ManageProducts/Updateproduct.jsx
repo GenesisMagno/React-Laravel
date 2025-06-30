@@ -1,28 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUpdateProduct, useProduct } from '../../../hooks/useProducts';
+import api from '../../../axios';
 
 export default function Updateproduct() {
   const { id } = useParams();
   const updateProduct = useUpdateProduct();
   const { data, isLoading, isError } = useProduct(id);
   const [includeIngredients, setIncludeIngredients] = useState(false);
-  const [ingredients, setIngredients] = useState([
-    { id: 1, name: '', description: '', image: null, imagePreview: null }
-  ]);
+  const [ingredients, setIngredients] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     big: '',
     medium: '',
     platter: '',
     tub: '',
-    image: null, // Keep this for file uploads only
+    image: null,
   });
 
   const product = data?.product;
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(null);
-  const [existingImageUrl, setExistingImageUrl] = useState(''); // Separate state for existing image
+  const [existingImageUrl, setExistingImageUrl] = useState('');
+  const [deletingIngredientId, setDeletingIngredientId] = useState(null);
 
   useEffect(() => {
     if (product) {
@@ -32,7 +32,7 @@ export default function Updateproduct() {
         medium: product.medium || '',
         platter: product.platter || '',
         tub: product.tub || '',
-        image: null, // Don't set the URL here
+        image: null,
       });
       
       // Set the existing image URL separately
@@ -42,6 +42,27 @@ export default function Updateproduct() {
       // If no new image is selected, show the existing image
       if (!imagePreview && imageUrl) {
         setImagePreview(imageUrl);
+      }
+
+      // Handle existing ingredients
+      if (product.ingredients && product.ingredients.length > 0) {
+        setIncludeIngredients(true);
+        const existingIngredients = product.ingredients.map((ingredient, index) => ({
+          id: ingredient.id, // Use the actual database ID
+          dbId: ingredient.id, // Keep track of database ID
+          name: ingredient.name || '',
+          description: ingredient.description || '',
+          image: null, // For new file uploads
+          imagePreview: ingredient.image ? `http://localhost:8000/storage/${ingredient.image}` : null,
+          existingImageUrl: ingredient.image ? `http://localhost:8000/storage/${ingredient.image}` : '',
+          isExisting: true // Flag to identify existing ingredients
+        }));
+        setIngredients(existingIngredients);
+      } else {
+        // Initialize with one empty ingredient if no existing ingredients
+        setIngredients([
+          { id: 1, name: '', description: '', image: null, imagePreview: null, isExisting: false }
+        ]);
       }
     }
   }, [product]);
@@ -89,7 +110,8 @@ export default function Updateproduct() {
           };
           reader.readAsDataURL(file);
         } else {
-          updatedIngredient.imagePreview = null;
+          // If no new file, revert to existing image if available
+          updatedIngredient.imagePreview = updatedIngredient.existingImageUrl || null;
         }
         
         return updatedIngredient;
@@ -99,19 +121,58 @@ export default function Updateproduct() {
   };
 
   const addIngredient = () => {
-    const newId = Math.max(...ingredients.map(ing => ing.id)) + 1;
+    const newId = Math.max(...ingredients.map(ing => ing.id), 0) + 1;
     setIngredients(prev => [...prev, { 
       id: newId, 
       name: '', 
       description: '', 
       image: null, 
-      imagePreview: null 
+      imagePreview: null,
+      isExisting: false
     }]);
   };
 
-  const removeIngredient = (id) => {
-    if (ingredients.length > 1) {
-      setIngredients(prev => prev.filter(ingredient => ingredient.id !== id));
+  // Updated removeIngredient function to handle database deletion
+  const removeIngredient = async (ingredientId) => {
+    // Find the ingredient to check if it's existing in the database
+    const ingredient = ingredients.find(ing => ing.id === ingredientId);
+    
+    if (ingredient && ingredient.isExisting && ingredient.dbId) {
+      // If it's an existing ingredient, delete from database
+      if (window.confirm('Are you sure you want to delete this ingredient? This action cannot be undone.')) {
+        try {
+          setDeletingIngredientId(ingredientId);
+          
+          // Make API call to delete ingredient from database
+          await api.delete(`/products/${id}/ingredients/${ingredient.dbId}`);
+          
+          // Remove from local state after successful deletion
+          setIngredients(prev => prev.filter(ing => ing.id !== ingredientId));
+          
+          // Show success message (optional)
+          console.log('Ingredient deleted successfully');
+          
+        } catch (error) {
+          console.error('Error deleting ingredient:', error);
+          
+          // Handle error - show user feedback
+          let errorMessage = 'Failed to delete ingredient';
+          if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+          }
+          
+          // You can set this to show in your UI
+          setErrors(prev => ({ ...prev, ingredient: errorMessage }));
+          
+        } finally {
+          setDeletingIngredientId(null);
+        }
+      }
+    } else {
+      // If it's a new ingredient (not in database), just remove from local state
+      if (ingredients.length > 1) {
+        setIngredients(prev => prev.filter(ing => ing.id !== ingredientId));
+      }
     }
   };
 
@@ -132,6 +193,27 @@ export default function Updateproduct() {
       // Only append image if a new file was selected
       if (formData.image instanceof File) {
         payload.append('image', formData.image);
+      }
+
+      // Handle ingredients if included
+      if (includeIngredients && ingredients.length > 0) {
+        ingredients.forEach((ingredient, index) => {
+          // Skip empty ingredients
+          if (!ingredient.name.trim()) return;
+
+          // For existing ingredients, include the database ID
+          if (ingredient.isExisting && ingredient.dbId) {
+            payload.append(`ingredients[${index}][id]`, ingredient.dbId);
+          }
+          
+          payload.append(`ingredients[${index}][name]`, ingredient.name);
+          payload.append(`ingredients[${index}][description]`, ingredient.description || '');
+          
+          // Only append image if a new file was selected
+          if (ingredient.image instanceof File) {
+            payload.append(`ingredients[${index}][image]`, ingredient.image);
+          }
+        });
       }
 
       await updateProduct.mutateAsync({ id, formData: payload });
@@ -201,11 +283,18 @@ export default function Updateproduct() {
             </div>
           )}
 
+          {/* Ingredient Error Display */}
+          {errors.ingredient && (
+            <div className="w-full mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
+              <div className="text-red-600 text-center">{errors.ingredient}</div>
+            </div>
+          )}
+
           {/* Main Form Content */}
           <div className="flex w-full mb-6 min-h-[500px]">
             {/* Image Upload Section */}
-            <div className="w-3/5 flex flex-col items-center space-y-4">
-              <div className="w-[600px] h-[450px] overflow-hidden border border-dashed border-black bg-gray-200 relative">
+            <div className="w-3/5 flex flex-col items-center space-y-4 py-4">
+              <div className="w-[600px] h-[100%] overflow-hidden border border-gray-200 bg-gray-200 relative">
                 {imagePreview ? (
                   <img 
                     src={imagePreview} 
@@ -213,7 +302,7 @@ export default function Updateproduct() {
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       console.error('Image failed to load:', imagePreview);
-                      setImagePreview(null); // Clear preview if image fails to load
+                      setImagePreview(null);
                     }}
                   />
                 ) : (
@@ -236,7 +325,7 @@ export default function Updateproduct() {
             </div>
 
             {/* Text Inputs Section */}
-            <div className="w-[35%] flex flex-col justify-center space-y-4">
+            <div className="w-[35%] h-full flex flex-col justify-center space-y-4">
               {[
                 { name: 'name', label: 'Product Name' },
                 { name: 'big', label: 'Big Price' },
@@ -260,14 +349,14 @@ export default function Updateproduct() {
           </div>
 
           {/* Ingredients Toggle */}
-          <div className="w-full mb-6">
+          <div className="w-4/5 mb-6 mx-auto">
             <div className="flex items-center bg-gray-50 p-4 rounded-lg border border-gray-200">
               <input
                 type="checkbox"
                 id="includeIngredients"
                 checked={includeIngredients}
                 onChange={(e) => setIncludeIngredients(e.target.checked)}
-                className="mr-3 h-5 w-5 text-green-600 focus:ring-green-500 border-gray-300 rounded accent-green-400"
+                className="mr-3 h-5 w-5   border-gray-300 rounded accent-white "
               />
               <label htmlFor="includeIngredients" className="text-lg font-medium text-gray-700 cursor-pointer">
                 Include Product Ingredients
@@ -277,35 +366,56 @@ export default function Updateproduct() {
 
           {/* Ingredients Section */}
           {includeIngredients && (
-            <div className="w-full">
+            <div className="w-4/5 mx-auto">
               <h3 className="text-2xl font-medium mb-4">Ingredients</h3>
               
               {ingredients.map((ingredient, index) => (
                 <div key={ingredient.id} className="border border-gray-300 rounded-lg p-4 mb-4">
                   <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-medium">Ingredient {index + 1}</h4>
-                    {ingredients.length > 1 && (
+                    <h4 className="text-lg font-medium">
+                      Ingredient {index + 1}
+                      {ingredient.isExisting && (
+                        <span className="ml-2 text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded">
+                          Existing
+                        </span>
+                      )}
+                    </h4>
+                   
                       <button
                         type="button"
                         onClick={() => removeIngredient(ingredient.id)}
-                        className="text-red-500 hover:text-red-700"
+                        disabled={deletingIngredientId === ingredient.id}
+                        className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        {deletingIngredientId === ingredient.id ? (
+                          <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="m4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        )}
                       </button>
-                    )}
+                   
                   </div>
                   
                   <div className="flex gap-4">
                     {/* Ingredient Image */}
                     <div className="w-1/2 flex flex-col items-center">
-                      <div className="w-full h-48 border border-dashed border-gray-400 bg-gray-100 relative mb-2">
+                      <div className="w-56 h-56 border  border-gray-400 bg-gray-100 relative mb-2 rounded-full">
                         {ingredient.imagePreview ? (
                           <img 
                             src={ingredient.imagePreview} 
-                            className="w-full h-full object-cover" 
+                            className="w-full h-full object-fill rounded-full" 
                             alt="Ingredient preview"
+                            onError={(e) => {
+                              console.error('Ingredient image failed to load:', ingredient.imagePreview);
+                              setIngredients(current => current.map(ing => 
+                                ing.id === ingredient.id ? { ...ing, imagePreview: null } : ing
+                              ));
+                            }}
                           />
                         ) : (
                           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
@@ -320,8 +430,13 @@ export default function Updateproduct() {
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleIngredientImageChange(ingredient.id, e.target.files[0])}
-                        className="text-sm text-gray-900 border rounded-lg cursor-pointer w-full"
+                        className="text-sm text-gray-900 border rounded-lg cursor-pointer w-2/5"
                       />
+                      {ingredient.isExisting && ingredient.existingImageUrl && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          Current: {ingredient.existingImageUrl.split('/').pop()}
+                        </div>
+                      )}
                     </div>
 
                     {/* Ingredient Details */}
