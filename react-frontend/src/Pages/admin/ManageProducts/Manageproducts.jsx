@@ -154,7 +154,7 @@ export default function Manageproducts() {
               ) : products && Array.isArray(products) && products.length > 0 ? (
                 products.map((product) => (
                   <tr key={product.id} className="bg-white text-sm h-14">
-                    <td className="p-3 font-bold text-md">{product.name}</td>
+                    <td className="p-3 font-semibold text-md">{product.name}</td>
                     <td>
                       <img
                         className="h-10 w-10 inline rounded-4xl"

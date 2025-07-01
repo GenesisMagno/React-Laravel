@@ -97,7 +97,7 @@ export default function Viewproduct() {
                         className="w-full aspect-[4/3] m-auto object-fill rounded-lg"
                     />
                 </div>
-                <div className="h-4/5 w-[40%] justify-center items-center text-center flex flex-col gap-y-5" >
+                <div className="h-4/5 w-[40%] justify-center items-center text-center flex flex-col gap-y-7" >
                     <p className="text-4xl  font-bold">{product.name}</p>
                     <p className="text-2xl font-semibold">₱{productPrice}</p>
 
@@ -269,7 +269,7 @@ export default function Viewproduct() {
                                                 .map((suggestedProduct) => (
                                                     <Link 
                                                         key={suggestedProduct.id} 
-                                                        to={`/product/${suggestedProduct.id}`}
+                                                        to={`/viewProduct/${suggestedProduct.id}`}
                                                         className="group block"
                                                     >
                                                         <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden group-hover:shadow-lg transition-shadow duration-300">

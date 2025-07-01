@@ -84,4 +84,8 @@ class User extends Authenticatable implements JWTSubject
 
             return response()->json(['message' => 'Image not found'], 404);
         }
+    public function cart()
+    {
+        return $this->hasOne(Cart::class);
+    }
 }

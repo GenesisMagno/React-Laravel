@@ -111,21 +111,31 @@ export default function Homepage() {
               </div>)
               : (products?.map((product) => (
                     <div
-                        key={product.id}
-                        className="bg-white w-[26%] lg:h-96  text-center shadow rounded"
+                      key={product.id}
+                      className="bg-white w-[26%] lg:h-96 text-center shadow rounded group relative overflow-hidden"
                     >
-                        <Link to={`/viewProduct/${product.id}`}>
-                            <img
-                                src={`http://localhost:8000/storage/${product.image}`}
-                                alt={product.name}
-                                className="h-4/5 w-full object-cover mb-4"
-                            />
-                            <div>
-                                <span className="text-xl font-medium mr-3">{product.name}</span>
-                                <span className="text-sm font-semibold text-gray-800">₱-{product.tub||product.platter||product.medium||product.big}</span>
-                            </div>
-                        </Link>
+                      <Link to={`/viewProduct/${product.id}`} className="block h-full">
+                        {/* Wrapper to control image overflow */}
+                        <div className="h-4/5 overflow-hidden">
+                          <img
+                            src={`http://localhost:8000/storage/${product.image}`}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        </div>
+
+                        {/* Text overlay or label */}
+                        <div className="h-1/5 z-10 flex flex-col items-center justify-center">
+                          <span className="text-xl font-medium group-hover:text-green-700 transition-colors">
+                            {product.name}
+                          </span>
+                          <span className="text-sm font-semibold text-gray-800">
+                            ₱-{product.tub || product.platter || product.medium || product.big}
+                          </span>
+                        </div>
+                      </Link>
                     </div>
+
                 )
                 ))}
                 
