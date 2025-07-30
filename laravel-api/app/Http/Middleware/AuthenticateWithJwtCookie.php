@@ -27,7 +27,7 @@ class AuthenticateWithJwtCookie
                 return response()->json(['error' => 'User not found'], 401);
             }
 
-            // 🔥 THIS IS THE KEY FIX - Set the user for the API guard
+            // Set the user for the API guard
             Auth::guard('api')->setUser($user);
 
         } catch (TokenExpiredException $e) {

@@ -49,7 +49,9 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
             'phone' => 'required|string|max:20',
-            'address' => 'required|string|max:255',
+            'street_address' => 'required|string|max:255',
+            'city' => 'required|string|max:255',
+            'zip_code' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 

@@ -6,27 +6,45 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('image')->default('null'); 
-            $table->string('phone')->default('null'); 
-            $table->string('address')->default('null'); 
+            if (!Schema::hasColumn('users', 'phone')) {
+                $table->string('phone')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'image')) {
+                $table->string('image')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'street_address')) {
+                $table->string('street_address')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'city')) {
+                $table->string('city')->nullable();
+            }
+            if (!Schema::hasColumn('users', 'zip_code')) {
+                $table->string('zip_code')->nullable();
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('image');
-            $table->dropColumn('phone');
-            $table->dropColumn('address');
+            if (Schema::hasColumn('users', 'image')) {
+                $table->dropColumn('image');
+            }
+            if (Schema::hasColumn('users', 'phone')) {
+                $table->dropColumn('phone');
+            }
+            if (Schema::hasColumn('users', 'street_address')) {
+                $table->dropColumn('street_address');
+            }
+            if (Schema::hasColumn('users', 'city')) {
+                $table->dropColumn('city');
+            }
+            if (Schema::hasColumn('users', 'zip_code')) {
+                $table->dropColumn('zip_code');
+            }
         });
     }
 };

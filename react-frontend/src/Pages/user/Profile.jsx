@@ -13,7 +13,9 @@ export default function Profile() {
     name: "",
     email: "",
     phone: "",
-    address: "",
+    street_address: "",
+    city: "",
+    zip_code: "",
     image: null, // Keep this for file uploads only
   });
 
@@ -30,7 +32,9 @@ export default function Profile() {
         name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
-        address: user.address || "",
+        street_address: user.street_address || "",
+        city: user.city || "",
+        zip_code: user.zip_code || "",
         image: null, // Don't set the URL here
       });
       
@@ -76,7 +80,9 @@ export default function Profile() {
       payload.append('name', formData.name || '');
       payload.append('email', formData.email || '');
       payload.append('phone', formData.phone || '');
-      payload.append('address', formData.address || '');
+      payload.append('street_address', formData.street_address || '');
+      payload.append('city', formData.city || '');
+      payload.append('zip_code', formData.zip_code || '');
       
       // Only append image if a new file was selected
       if (formData.image instanceof File) {
@@ -113,7 +119,9 @@ export default function Profile() {
         name: user.name || "",
         email: user.email || "",
         phone: user.phone || "",
-        address: user.address || "",
+        street_address: user.street_address || "",
+        city: user.city || "",
+        zip_code: user.zip_code || "",
         image: null,
       });
       setImagePreview(existingImageUrl);
@@ -121,16 +129,16 @@ export default function Profile() {
   };
 
   if (userLoading) return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+    <div className="h-screen pt-24 flex items-center justify-center">
       <div className="flex items-center space-x-3">
-        <div className="w-8 h-8 border-4 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
         <span className="text-lg text-gray-700">Loading...</span>
       </div>
     </div>
   );
   
   if (userError) return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+    <div className="h-screen pt-24 bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 flex items-center justify-center">
       <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg">
         Error loading user.
       </div>
@@ -138,25 +146,25 @@ export default function Profile() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-indigo-100">
+    <div className="h-[calc(100vh-6rem)] pt-16 bg-gray-100 overflow-y-auto">
       {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-12">
+      <div className="h-full max-w-6xl mx-auto px-6 py-8">
         {/* Success Message */}
         {showSuccess && (
-          <div className="fixed top-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50 animate-slide-in">
+          <div className="fixed top-32 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50 animate-slide-in">
             <Check className="w-5 h-5" />
             <span>Profile updated successfully!</span>
           </div>
         )}
 
         {/* Profile Header */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-2">Profile Settings</h2>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h2>
           <p className="text-gray-600">Manage your account information and preferences</p>
         </div>
 
         {/* Profile Card */}
-        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+        <div className="bg-white/70 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden border border-white/20 h-auto">
           <div className="relative">
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-gradient-to-r from-green-300 via-blue-300 to-indigo-200 opacity-10">
@@ -165,7 +173,7 @@ export default function Profile() {
               }}></div>
             </div>
 
-            <div className="relative p-8 md:p-12">
+            <div className="relative p-6 md:p-8">
               {/* General Error Message */}
               {errors.general && (
                 <div className="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg text-center">
@@ -173,12 +181,12 @@ export default function Profile() {
                 </div>
               )}
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 
                 {/* Profile Image Section */}
                 <div className="lg:col-span-1 flex flex-col items-center">
                   <div className="relative group">
-                    <div className="w-48 h-48 rounded-full overflow-hidden ring-4 ring-white shadow-2xl transform transition-transform group-hover:scale-105">
+                    <div className="w-40 h-40 rounded-full overflow-hidden ring-4 ring-white shadow-2xl transform transition-transform group-hover:scale-105">
                       <img 
                         src={imagePreview} 
                         alt="Profile" 
@@ -190,8 +198,8 @@ export default function Profile() {
                     </div>
                     
                     {!isDisabled && (
-                      <label className="absolute bottom-4 right-4 bg-green-600 hover:bg-green-700 text-white p-3 rounded-full cursor-pointer shadow-lg transform transition-all hover:scale-110 group">
-                        <Camera className="w-5 h-5" />
+                      <label className="absolute bottom-2 right-2 bg-green-600 hover:bg-green-700 text-white p-2 rounded-full cursor-pointer shadow-lg transform transition-all hover:scale-110 group">
+                        <Camera className="w-4 h-4" />
                         <input
                           type="file"
                           accept="image/*"
@@ -211,9 +219,9 @@ export default function Profile() {
                   )}
                   
                   <div className="mt-6 text-center">
-                    <h3 className="text-2xl font-bold text-gray-900">{formData.name || 'User'}</h3>
+                    <h3 className="text-xl font-bold text-gray-900">{formData.name || 'User'}</h3>
                     <p className="text-gray-600 mt-1">Premium Member</p>
-                    <div className="mt-4 flex justify-center">
+                    <div className="mt-3 flex justify-center">
                       <div className="flex items-center space-x-1 bg-gradient-to-r from-green-50 to-green-100 px-3 py-1 rounded-full">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         <span className="text-sm text-gray-700">Active</span>
@@ -224,13 +232,13 @@ export default function Profile() {
 
                 {/* Form Section */}
                 <div className="lg:col-span-2">
-                  <div className="bg-white/50 rounded-2xl p-8 backdrop-blur-sm">
-                    <div className="flex items-center justify-between mb-8">
-                      <h4 className="text-xl font-semibold text-gray-900">Personal Information</h4>
+                  <div className="bg-white/50 rounded-2xl p-6 backdrop-blur-sm">
+                    <div className="flex items-center justify-between mb-6">
+                      <h4 className="text-lg font-semibold text-gray-900">Personal Information</h4>
                       {isDisabled && (
                         <button
                           onClick={() => setIsDisabled(false)}
-                          className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg"
+                          className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-xl transition-all transform hover:scale-105 shadow-lg"
                         >
                           <Edit3 className="w-4 h-4" />
                           <span>Edit Profile</span>
@@ -238,8 +246,8 @@ export default function Profile() {
                       )}
                     </div>
 
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {/* Name Field */}
                         <div className="group">
                           <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-2">
@@ -252,7 +260,7 @@ export default function Profile() {
                             value={formData.name}
                             onChange={handleInputChange}
                             disabled={isDisabled}
-                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
                           />
                           {errors.name && <span className="text-red-500 text-sm mt-1">{errors.name[0]}</span>}
                         </div>
@@ -269,7 +277,7 @@ export default function Profile() {
                             value={formData.email}
                             onChange={handleInputChange}
                             disabled={isDisabled}
-                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
                           />
                           {errors.email && <span className="text-red-500 text-sm mt-1">{errors.email[0]}</span>}
                         </div>
@@ -287,37 +295,73 @@ export default function Profile() {
                             onChange={handleInputChange}
                             disabled={isDisabled}
                             placeholder="Enter your phone number"
-                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
                           />
                           {errors.phone && <span className="text-red-500 text-sm mt-1">{errors.phone[0]}</span>}
                         </div>
 
-                        {/* Address Field */}
+                        {/* Street Address Field */}
                         <div className="group md:col-span-2">
                           <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-2">
                             <MapPin className="w-4 h-4" />
-                            <span>Address</span>
+                            <span>Street Address</span>
                           </label>
                           <textarea
-                            name="address"
-                            rows="3"
-                            value={formData.address}
+                            name="street_address"
+                            rows="2"
+                            value={formData.street_address}
                             onChange={handleInputChange}
                             disabled={isDisabled}
-                            placeholder="Enter your address"
-                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600 resize-none"
+                            placeholder="Enter your street address"
+                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600 resize-none"
                           />
-                          {errors.address && <span className="text-red-500 text-sm mt-1">{errors.address[0]}</span>}
+                          {errors.street_address && <span className="text-red-500 text-sm mt-1">{errors.street_address[0]}</span>}
+                        </div>
+
+                        {/* City Field */}
+                        <div className="group">
+                          <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>City</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="city"
+                            value={formData.city}
+                            onChange={handleInputChange}
+                            disabled={isDisabled}
+                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                            placeholder="Enter your city"
+                          />
+                          {errors.city && <span className="text-red-500 text-sm mt-1">{errors.city[0]}</span>}
+                        </div>
+
+                        {/* Zip Code Field */}
+                        <div className="group">
+                          <label className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-2">
+                            <MapPin className="w-4 h-4" />
+                            <span>Zip Code</span>
+                          </label>
+                          <input
+                            type="text"
+                            name="zip_code"
+                            value={formData.zip_code}
+                            onChange={handleInputChange}
+                            disabled={isDisabled}
+                            className="w-full border-2 border-gray-200 rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                            placeholder="Enter your zip code"
+                          />
+                          {errors.zip_code && <span className="text-red-500 text-sm mt-1">{errors.zip_code[0]}</span>}
                         </div>
                       </div>
 
                       {/* Action Buttons */}
                       {!isDisabled && (
-                        <div className="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                        <div className="flex justify-end space-x-4 pt-4 border-t border-gray-200">
                           <button
                             type="button"
                             onClick={handleCancel}
-                            className="flex items-center space-x-2 px-6 py-3 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
+                            className="flex items-center space-x-2 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-all"
                           >
                             <X className="w-4 h-4" />
                             <span>Cancel</span>
@@ -326,7 +370,7 @@ export default function Profile() {
                             type="button"
                             onClick={handleSubmit}
                             disabled={updateUser.isLoading}
-                            className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-8 py-3 rounded-xl transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:transform-none"
+                            className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-6 py-2 rounded-xl transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:transform-none"
                           >
                             {updateUser.isLoading ? (
                               <>
@@ -349,62 +393,7 @@ export default function Profile() {
             </div>
           </div>
         </div>
-
-        {/* Additional Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">5</span>
-              </div>
-              <div>
-                <h5 className="font-semibold text-gray-900">Orders</h5>
-                <p className="text-sm text-gray-600">Total purchases</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-400 to-pink-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">★</span>
-              </div>
-              <div>
-                <h5 className="font-semibold text-gray-900">Premium</h5>
-                <p className="text-sm text-gray-600">Member status</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-            <div className="flex items-center space-x-3 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-semibold text-sm">2</span>
-              </div>
-              <div>
-                <h5 className="font-semibold text-gray-900">Reviews</h5>
-                <p className="text-sm text-gray-600">Product ratings</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slide-in {
-          from {
-            transform: translateX(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateX(0);
-            opacity: 1;
-          }
-        }
-        .animate-slide-in {
-          animation: slide-in 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 }

@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
- use App\Models\Cart;
-    use App\Models\CartItem;
+use App\Models\Cart;
+use App\Models\CartItem;
     
 class CartController extends Controller
 {
@@ -21,7 +21,6 @@ class CartController extends Controller
             'product_id' => 'required|exists:products,id',
             'size'       => 'required|in:big,medium,platter,tub',
             'quantity'   => 'required|integer|min:1',
-            'product_image' => 'required|string',
             'product_price' => 'required|string',
         ]);
 
@@ -65,6 +64,26 @@ class CartController extends Controller
 
         return response()->json(['message' => 'Cart item quantity updated']);
     }
+
+    public function updateSelection(Request $request, CartItem $cartItem)
+    {
+        $cartItem->update([
+            'selected' => $request->boolean('selected'),
+        ]);
+
+        return response()->json(['message' => 'Selection updated']);
+    }
+
+    public function selectedItems(Request $request)
+    {
+        $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
+
+        $selectedItems = $cart->items()->where('selected', true)->with('product')->get();
+
+        return response()->json($selectedItems);
+    }
+
+
 
 
     public function remove(Request $request)

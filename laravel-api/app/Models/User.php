@@ -27,7 +27,9 @@ class User extends Authenticatable implements JWTSubject
         'password',
         'image',
         'phone',
-        'address',
+        'street_address',
+        'city',
+        'zip_code'
     ];
 
     /**
@@ -69,6 +71,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+
+
     public static function destroyImage($imageName)
         {
             // Define the path to the image in storage (assuming it's in the public directory)
@@ -88,4 +93,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(Cart::class);
     }
+    public function order()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+
 }

@@ -69,3 +69,20 @@ export const useDeleteProduct = () => {
   });
 };
 
+export const useDeleteIngredient = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: productService.deleteIngredient,
+    onSuccess: (data, productId) => {
+      // Invalidate products list
+      queryClient.invalidateQueries(['products']);
+      
+      // Remove the specific product from cache
+      queryClient.removeQueries(['product', productId]);
+    },
+    onError: (error) => {
+      console.error('Error deleting product:', error);
+    },
+  });
+};
+

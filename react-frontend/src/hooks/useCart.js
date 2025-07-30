@@ -30,6 +30,25 @@ export const useUpdateQuantity = () => {
   });
 };
 
+export const useUpdateSelection = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: cartService.updateSelection,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      queryClient.invalidateQueries({ queryKey: ['selectedItems'] });
+    },
+  });
+};
+
+export const useSelectedItems = () => {
+  return useQuery({
+    queryKey: ['selectedItems'],
+    queryFn: cartService.getSelectedItems,
+  });
+};
+
 export const useRemoveFromCart = () => {
   const queryClient = useQueryClient();
 

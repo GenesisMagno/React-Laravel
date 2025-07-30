@@ -14,7 +14,6 @@ class AuthController extends Controller
 {
     public function register(Request $request){
         try {
-            // Option 1: Using Validator facade (recommended for consistency with your login method)
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users',
@@ -53,52 +52,35 @@ class AuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
 
-        // Validate credentials first
         $validator = Validator::make($credentials, [
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors()
-            ], 422);
+            return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $user = User::where('email', $credentials['email'])->first();
 
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
-            return response()->json([
-                'message' => 'Invalid credentials'
-            ], 401);
+            return response()->json(['message' => 'Invalid credentials'], 401);
         }
+        
+        $token = JWTAuth::fromUser($user);
 
-        try {
-            $token = JWTAuth::fromUser($user);
-            return response()->json([
-                'message' => 'Logged in successfully',
-                'user' => $user
-            ])->cookie(
-                'jwt_token',
-                $token,
-                1440,
-                '/',
-                null,
-                true,
-                true,
-                false,
-                'Strict'
-            );
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Could not create token'
-            ], 500);
-        }
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => $user,
+        ])->cookie(
+            'jwt_token',  // cookie name
+            $token,       // cookie value
+            1440,         // minutes (1 day)
+            '/', null, true, true, false, 'Strict'
+        );
     }
 
     public function user(Request $request) {
-        // Get the authenticated user from the API guard
         $user = Auth::guard('api')->user();
 
         if (!$user) {

@@ -15,7 +15,20 @@ export const updateQuantity = async(cartItem)=>{
     return data;
 }
 
+export const updateSelection = async({ cartItemId, selected }) => {
+    const {data} = await api.post(`/cart/update-selection/${cartItemId}`, { 
+        selected 
+    });
+    return data;
+}
+
+export const getSelectedItems = async() => {
+    const {data} = await api.post(`/cart/selecteditems`);
+    return data;
+}
+
 export const removeCartItem = async(cartItem)=>{
     const {data} = await api.post(`/cart/remove/`, cartItem);
     return data;
 }
+

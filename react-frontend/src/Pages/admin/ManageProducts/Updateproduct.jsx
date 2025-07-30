@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUpdateProduct, useProduct } from '../../../hooks/useProducts';
-import api from '../../../axios';
+import { useUpdateProduct, useProduct, useDeleteIngredient } from '../../../hooks/useProducts';
 
 export default function Updateproduct() {
   const { id } = useParams();
+
   const updateProduct = useUpdateProduct();
+
   const { data, isLoading, isError } = useProduct(id);
+
+  const deleteIngredient= useDeleteIngredient();
+
   const [includeIngredients, setIncludeIngredients] = useState(false);
   const [ingredients, setIngredients] = useState([]);
   const [formData, setFormData] = useState({
@@ -132,19 +136,18 @@ export default function Updateproduct() {
     }]);
   };
 
-  // Updated removeIngredient function to handle database deletion
   const removeIngredient = async (ingredientId) => {
-    // Find the ingredient to check if it's existing in the database
+
     const ingredient = ingredients.find(ing => ing.id === ingredientId);
     
     if (ingredient && ingredient.isExisting && ingredient.dbId) {
-      // If it's an existing ingredient, delete from database
       if (window.confirm('Are you sure you want to delete this ingredient? This action cannot be undone.')) {
         try {
           setDeletingIngredientId(ingredientId);
           
           // Make API call to delete ingredient from database
-          await api.delete(`/products/${id}/ingredients/${ingredient.dbId}`);
+          await deleteIngredient.mutateAsync(id,ingredient.dbId);
+
           
           // Remove from local state after successful deletion
           setIngredients(prev => prev.filter(ing => ing.id !== ingredientId));

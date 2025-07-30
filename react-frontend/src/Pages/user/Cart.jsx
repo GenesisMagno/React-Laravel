@@ -1,14 +1,26 @@
-import { useState } from 'react';
-import { useCart, useRemoveFromCart, useUpdateQuantity } from '../../hooks/useCart';
+import { useState, useEffect } from 'react';
+import { useCart, useRemoveFromCart, useUpdateQuantity, useUpdateSelection } from '../../hooks/useCart';
 import { Link } from 'react-router-dom';
 
 export default function Cart(){
   const { data: cartData, isLoading, error } = useCart();
   const removeFromCartMutation = useRemoveFromCart();
   const updateQuantityMutation = useUpdateQuantity();
+  const updateSelectionMutation = useUpdateSelection();
+
   const [selectedItems, setSelectedItems] = useState(new Set());
 
   const cartItems = cartData?.items || [];
+
+  // Sync local state with backend data when cart data changes
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      const selectedFromBackend = new Set(
+        cartItems.filter(item => item.selected).map(item => item.id)
+      );
+      setSelectedItems(selectedFromBackend);
+    }
+  }, [cartItems]);
 
   const updateQuantity = (productId, size, newQuantity) => {
     if (newQuantity < 1) return;
@@ -25,20 +37,43 @@ export default function Cart(){
   };
 
   const handleSelectItem = (itemId) => {
-    const newSelected = new Set(selectedItems);
-    if (newSelected.has(itemId)) {
-      newSelected.delete(itemId);
+    const item = cartItems.find(item => item.id === itemId);
+    if (!item) return;
+
+    const newSelected = !selectedItems.has(itemId);
+    
+    // Update backend
+    updateSelectionMutation.mutate({
+      cartItemId: itemId,
+      selected: newSelected
+    });
+
+    // Update local state immediately for better UX
+    const newSelectedItems = new Set(selectedItems);
+    if (newSelected) {
+      newSelectedItems.add(itemId);
     } else {
-      newSelected.add(itemId);
+      newSelectedItems.delete(itemId);
     }
-    setSelectedItems(newSelected);
+    setSelectedItems(newSelectedItems);
   };
 
   const handleSelectAll = () => {
-    if (selectedItems.size === cartItems.length) {
-      setSelectedItems(new Set());
-    } else {
+    const shouldSelectAll = selectedItems.size !== cartItems.length;
+    
+    // Update all items in backend
+    cartItems.forEach(item => {
+      updateSelectionMutation.mutate({
+        cartItemId: item.id,
+        selected: shouldSelectAll
+      });
+    });
+
+    // Update local state
+    if (shouldSelectAll) {
       setSelectedItems(new Set(cartItems.map(item => item.id)));
+    } else {
+      setSelectedItems(new Set());
     }
   };
 
@@ -105,6 +140,7 @@ export default function Cart(){
                     className="mr-2 accent-green-700"
                     checked={selectedItems.has(item.id)}
                     onChange={() => handleSelectItem(item.id)}
+                    disabled={updateSelectionMutation.isLoading}
                   />
                 </div>
 
@@ -203,6 +239,7 @@ export default function Cart(){
                 className='accent-green-700'
                 checked={selectedItems.size === cartItems.length && cartItems.length > 0}
                 onChange={handleSelectAll}
+                disabled={updateSelectionMutation.isLoading}
               />
               <span className="text-sm ">Select All ({cartItems.length})</span>
               <button 
@@ -223,12 +260,21 @@ export default function Cart(){
                   {formatPrice(totalSelectedPrice)}
                 </div>
               </div>
-              <button 
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-medium disabled:opacity-50"
-                disabled={selectedItems.size === 0}
+              <Link
+                to="/order"
+                onClick={() => {
+
+                }}
+                className={`bg-green-600 text-white px-8 py-3 rounded-lg font-medium transition 
+                  ${selectedItems.size === 0 
+                    ? 'opacity-50 cursor-not-allowed pointer-events-none' 
+                    : 'hover:bg-green-700'
+                  }`}
               >
                 Check Out
-              </button>
+              </Link>
+
+
             </div>
           </div>
         </div>

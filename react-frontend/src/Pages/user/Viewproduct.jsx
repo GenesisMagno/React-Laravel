@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useProduct, useProducts } from "../../hooks/useProducts";
 import { useAddToCart } from "../../hooks/useCart";
-import ProductIngredientImage from "../../components/ProductIngredientImage";
 
 export default function Viewproduct() {
     const { id } = useParams();
@@ -62,7 +61,6 @@ export default function Viewproduct() {
 
         const cartItem = {
             product_id: parseInt(id),
-            product_image: product.image,
             product_price: productPrice.toString(), 
             size: selectedSize,
             quantity: quantity
