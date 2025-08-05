@@ -9,12 +9,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 
-use Illuminate\Support\Facades\Artisan;
-
-Route::get('/run-seeder', function () {
-    Artisan::call('db:seed', ['--force' => true]);
-    return 'Seeder ran successfully!';
-});
 
 Route::middleware('guest')->group(function(){
     // REGISTER
