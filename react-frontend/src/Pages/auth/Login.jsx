@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLogin } from '../../hooks/useAuth';
+import { Link } from 'react-router-dom';
 
 export default function Login() {
 
@@ -139,9 +140,9 @@ export default function Login() {
           </div>
         </a>
 
-        <div className="mt-6 text-blue-500 text-center">
-          <a href="/register" className="hover:underline">Sign up Here</a>
-        </div>
+        <Link to={"/register"} className="mt-6 text-blue-500 text-center">
+          <span className="hover:underline">Sign up Here</span>
+        </Link>
       </div>
     </div>
   );
