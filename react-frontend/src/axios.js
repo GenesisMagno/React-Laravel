@@ -3,7 +3,9 @@ import axios from 'axios';
 import { startProgress, stopProgress } from './progress';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: process.env.NODE_ENV === 'production' 
+    ? 'https://react-laravel-production-232e.up.railway.app/api'
+    : 'http://localhost:8000/api',
   headers: {
     'Accept': 'application/json',
   },
