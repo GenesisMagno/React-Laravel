@@ -1,7 +1,13 @@
 {
+  "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "nixpacks",
-    "buildCommand": "cd laravel-api && touch /tmp/database.sqlite && composer install --no-dev --optimize-autoloader && php artisan migrate --force && php artisan config:cache",
-    "startCommand": "cd laravel-api && php artisan serve --host=0.0.0.0 --port=$PORT"
+    "buildCommand": "cd backend && composer install --no-dev --optimize-autoloader"
+  },
+  "deploy": {
+    "startCommand": "cd backend && php artisan serve --host=0.0.0.0 --port=$PORT",
+    "healthcheckPath": "/",
+    "healthcheckTimeout": 100,
+    "restartPolicyType": "never"
   }
 }
