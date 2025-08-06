@@ -16,7 +16,7 @@ Route::middleware('guest')->group(function(){
     // LOGIN
     Route::post('/login', [AuthController::class , 'login']);
 });
-
+ Route::apiResource('products', ProductController::class)->only(['index','show']);
 // PROTECTED ROUTES (JWT Required)
 Route::middleware('jwt.cookie')->group(function () {
     // Auth routes
@@ -40,7 +40,7 @@ Route::middleware('jwt.cookie')->group(function () {
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelOrder']);
     
     // Product viewing (authenticated users can view products)
-    Route::apiResource('products', ProductController::class)->only(['index','show']);
+   
 
     // User Profile
     Route::apiResource('users', UserController::class)->only([
