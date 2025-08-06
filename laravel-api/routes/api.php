@@ -9,41 +9,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 
-// Add this to routes/api.php or routes/web.php
-Route::get('/test-login/{email}/{password}', function($email, $password) {
-    // URL decode the parameters (in case of encoding issues)
-    $email = urldecode($email);
-    $password = urldecode($password);
-    
-    $response = [
-        'step1_data_received' => [
-            'email' => $email,
-            'password' => $password,
-            'email_length' => strlen($email),
-            'password_length' => strlen($password)
-        ]
-    ];
-    
-    // Step 2: Check if user exists  
-    $user = User::where('email', $email)->first();
-    $response['step2_user_lookup'] = $user ? 'found' : 'not_found';
-    
-    if ($user) {
-        $response['user_data'] = [
-            'id' => $user->id,
-            'email' => $user->email,
-            'password_hash_length' => strlen($user->password)
-        ];
-        
-        // Step 3: Test password
-        $passwordWorks = Hash::check($password, $user->password);
-        $response['step3_password_check'] = $passwordWorks ? 'PASS' : 'FAIL';
-    } else {
-        $response['available_users'] = User::select('email')->get()->toArray();
-    }
-    
-    return response()->json($response);
-});
 Route::middleware('guest')->group(function(){
     // REGISTER
     Route::post('/register', [AuthController::class , 'register']);

@@ -29,23 +29,29 @@ export default function Login() {
   setProcessing(true);
   setErrors({});
 
-  fetch('https://react-laravel-production-232e.up.railway.app/api/test-login', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    },
-    credentials: 'include',
-    body: JSON.stringify({
-        email: 'your-email@example.com',
-        password: 'your-password'
-    })
-})
-.then(response => response.json())
-.then(data => {
-    console.log('TEST RESPONSE:', data);
-    // This will show you exactly what's happening at each step
-});
+  try {
+    const user= await login.mutateAsync(data);
+
+    // user is the returned data from authService.login
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.errors) {
+      // Laravel-style validation error
+      setErrors(err.response.data.errors);
+    } else if (err.response && err.response.data && err.response.data.message) {
+      // Laravel authentication failure or other messages
+      setErrors({ general: err.response.data.message });
+    } else {
+      setErrors({ general: 'Something went wrong. Please try again.' });
+    }
+  } finally {
+    setProcessing(false);
+  }
 };
 
 
