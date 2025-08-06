@@ -10,7 +10,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 
 // Add this to routes/api.php or routes/web.php
-Route::post('/test-login', function(Request $request) {
+Route::get('/test-login', function(Request $request) {
     $email = $request->input('email');
     $password = $request->input('password');
     
