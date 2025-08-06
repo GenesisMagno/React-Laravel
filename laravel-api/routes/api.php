@@ -10,21 +10,21 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 
 // Add this to routes/api.php or routes/web.php
-Route::get('/test-login', function(Request $request) {
-    $email = $request->input('email');
-    $password = $request->input('password');
+Route::get('/test-login/{email}/{password}', function($email, $password) {
+    // URL decode the parameters (in case of encoding issues)
+    $email = urldecode($email);
+    $password = urldecode($password);
     
-    // Step 1: Check if we receive the data
     $response = [
         'step1_data_received' => [
             'email' => $email,
-            'password' => $password ? 'received' : 'missing',
-            'email_length' => strlen($email ?? ''),
-            'password_length' => strlen($password ?? '')
+            'password' => $password,
+            'email_length' => strlen($email),
+            'password_length' => strlen($password)
         ]
     ];
     
-    // Step 2: Check if user exists
+    // Step 2: Check if user exists  
     $user = User::where('email', $email)->first();
     $response['step2_user_lookup'] = $user ? 'found' : 'not_found';
     
@@ -39,7 +39,6 @@ Route::get('/test-login', function(Request $request) {
         $passwordWorks = Hash::check($password, $user->password);
         $response['step3_password_check'] = $passwordWorks ? 'PASS' : 'FAIL';
     } else {
-        // Show what users actually exist
         $response['available_users'] = User::select('email')->get()->toArray();
     }
     
