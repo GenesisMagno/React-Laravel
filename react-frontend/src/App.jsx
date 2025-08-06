@@ -18,7 +18,6 @@ import Createproduct from './Pages/admin/ManageProducts/Createproduct';
 import Updateproduct from './Pages/admin/ManageProducts/Updateproduct';
 import UsersList from './Pages/admin/ManageUsers/Manageusers';
 
-import AuthDebugger from './Pages/AuthDebugger'; 
 
 function App() {
   return (
