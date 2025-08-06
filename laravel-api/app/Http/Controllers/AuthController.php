@@ -134,7 +134,7 @@ class AuthController extends Controller
                 request()->secure(), // Use HTTPS in production
                 true, // HTTP only
                 false,
-                'None'
+                'Strict'
             );
 
         } catch (\Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
