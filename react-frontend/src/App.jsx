@@ -32,7 +32,7 @@ function App() {
             path="/register" 
             element={<Register />} 
           />
-          <Route path="/debug" element={<AuthDebugger />} />
+
           <Route path="/" element={ <MainLayout />}>
             <Route index element={<Homepage/>}></Route>
             <Route path="profile/:id" element={<Profile/>}></Route>
