@@ -29,7 +29,7 @@ export default function Login() {
   setProcessing(true);
   setErrors({});
 
-  fetch('https://your-railway-app.up.railway.app/api/test-login', {
+  fetch('https://react-laravel-production-232e.up.railway.app/api/test-login', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json',
