@@ -18,7 +18,7 @@ export default function MainLayout() {
     <div className="flex flex-col h-screen  ">
       <nav className="flex w-full min-h-24 bg-neutral-900 items-center justify-end px-72">
         <img
-          src="http://react-laravel-production-232e.up.railway.app/images/bettertastelogo.png"
+          src="https://react-laravel-production-232e.up.railway.app/images/bettertastelogo.png"
           className="mr-auto h-16 w-24 flex"
           alt="Logo"
         />
