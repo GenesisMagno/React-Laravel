@@ -76,7 +76,7 @@ class AuthController extends Controller
             'jwt_token',  // cookie name
             $token,       // cookie value
             1440,         // minutes (1 day)
-            '/', null, true, true, false, 'Strict'
+            '/', null, true, true, false, 'none'
         );
     }
 
