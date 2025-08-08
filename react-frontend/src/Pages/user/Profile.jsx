@@ -39,7 +39,7 @@ export default function Profile() {
       });
       
       // Set the existing image URL separately
-      const imageUrl = user.image ? `http://localhost:8000/storage/${user.image}` : 'http://localhost:8000/images/noimage.png';
+      const imageUrl = user.image ? `${VITE_API_URL}/storage/${user.image}` : `${import.meta.env.VITE_API_URL}/images/noimage.png`;
       setExistingImageUrl(imageUrl);
       
       // If no new image is selected, show the existing image
@@ -192,7 +192,7 @@ export default function Profile() {
                         alt="Profile" 
                         className="w-full h-full object-cover"
                         onError={(e) => {
-                          setImagePreview('http://localhost:8000/images/noimage.png'); // Fallback to default image
+                          setImagePreview(`${import.meta.env.VITE_API_URL}/images/noimage.png`); // Fallback to default image
                         }}
                       />
                     </div>
