@@ -37,7 +37,12 @@ export default function MainLayout() {
           {user ? (
             <div className="group relative">
               <img
-               src={`${import.meta.env.VITE_API_URL}/storage/${user?.image!=null}`||`${import.meta.env.VITE_API_URL}/images/noimage.png`}
+               src={
+                  user?.image 
+                    ? `${import.meta.env.VITE_API_URL}/storage/${user.image}`
+                    : `${import.meta.env.VITE_API_URL}/images/noimage.png`
+                }
+
                 alt="profile"
                 className="ml-2 h-10 w-10 rounded-full cursor-pointer"
               />
