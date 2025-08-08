@@ -158,7 +158,7 @@ export default function Manageproducts() {
                     <td>
                       <img
                         className="h-10 w-10 inline rounded-4xl"
-                        src={`http://localhost:8000/storage/${product.image}`}
+                        src={`${import.meta.env.VITE_API_URL}/storage/${product.image}`}
                         alt={product.name}
                       />
                     </td>
