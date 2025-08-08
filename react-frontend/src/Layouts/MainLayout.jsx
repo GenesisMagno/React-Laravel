@@ -12,13 +12,14 @@ export default function MainLayout() {
   const handleLogout = () => {
     logout.mutate();
     navigate("/login");
+    
   };
 
   return (
     <div className="flex flex-col h-screen  ">
       <nav className="flex w-full min-h-24 bg-neutral-900 items-center justify-end px-72">
         <img
-          src="https://react-laravel-production-232e.up.railway.app/images/bettertastelogo.png"
+          src={`${import.meta.env.REACT_APP_API_URL}/images/bettertastelogo.png`}
           className="mr-auto h-16 w-24 flex"
           alt="Logo"
         />
