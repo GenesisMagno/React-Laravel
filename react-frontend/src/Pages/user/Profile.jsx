@@ -39,7 +39,7 @@ export default function Profile() {
       });
       
       // Set the existing image URL separately
-      const imageUrl = user.image ? `${VITE_API_URL}/storage/${user.image}` : `${import.meta.env.VITE_API_URL}/images/noimage.png`;
+      const imageUrl = user.image ? `${import.meta.env.VITE_API_URL}/storage/${user.image}` : `${import.meta.env.VITE_API_URL}/images/noimage.png`;
       setExistingImageUrl(imageUrl);
       
       // If no new image is selected, show the existing image
