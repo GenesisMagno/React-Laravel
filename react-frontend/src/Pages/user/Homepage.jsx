@@ -118,7 +118,7 @@ export default function Homepage() {
                         {/* Wrapper to control image overflow */}
                         <div className="h-4/5 overflow-hidden">
                           <img
-                            src={`http://localhost:8000/storage/${product.image}`}
+                            src={`${import.meta.env.VITE_API_URL}/storage/${product.image}`}
                             alt={product.name}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
