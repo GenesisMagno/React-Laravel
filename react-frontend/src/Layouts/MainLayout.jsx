@@ -37,7 +37,7 @@ export default function MainLayout() {
           {user ? (
             <div className="group relative">
               <img
-                src={`http://localhost:8000/storage/${user?.image}` || "http://localhost:8000/images/noimage.png"}
+                src={`${import.meta.env.REACT_APP_API_URL}/storage/${user?.image}` || `${import.meta.env.REACT_APP_API_URL}/images/noimage.png`}
                 alt="profile"
                 className="ml-2 h-10 w-10 rounded-full cursor-pointer"
               />
